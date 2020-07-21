@@ -52,7 +52,7 @@ def SVI_calculate(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def split_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def split_SVI_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split the SVI data frame to 4 dataframes for each reactor.
     Change the columns names to be identical
     
@@ -80,6 +80,26 @@ def label_data(data: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFr
     data['SVI_label'] = np.where(data.loc[:, 'SVI']>=label_SVI[0], 'bad',
          np.where(data.loc[:, 'SVI']>=label_SVI[1], 'reasonable', 'good'))
     return data
+
+
+def split_microscopic_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Split the microscopic data frame to 4 dataframes for each reactor.
+    Change the columns names to be identical
+    
+    Returns
+    -------
+    data frame
+        data_reactor1, data_reactor2, data_reactor3, data_reactor4
+    """
+
+    data_reactor1 = data.iloc[:, np.r_[0, 1:38]]
+    data_reactor2 = data.iloc[:, np.r_[0, 38:75]]
+    data_reactor3 = data.iloc[:, np.r_[0, 75:112]]
+    data_reactor4 = data.iloc[:, np.r_[0, 112:149]]
+    df_list=[data_reactor1, data_reactor2, data_reactor3, data_reactor4]
+    for df in df_list:
+        df.columns= ['time','ameoba_arcella', 'ameoba_nude ameba', 'crawling ciliates_aspidisca', 'crawling ciliates_trachelopylum', 'free swimming ciliates_lionutus', 'free swimming ciliates_paramecium', 'stalked ciliate_epistylis', 'stalked ciliate_vorticella', 'stalked ciliate_carchecium', 'stalked ciliate_tokophyra', 'stalked ciliate_podophyra', 'stalked ciliate_opercularia', 'rotifer_rotifer', 'worms_nematode', 'flagellates_peranema trich', 'flagellates_micro flagellates', 'worms_worms', 'spirochaetes_spirochaetes', 'Total Count- amoeba', 'Total Count- Crawling Ciliates', 'Total Count- Free swimming Ciliates', 'Total Count- Stalked Ciliates', 'Total Count- Rotifers', 'Total Count- Worms', 'Total Count- Spirochaetes', 'Total Count- Flagellats', 'Total Count- Free Bacteria', 'Total Count- Filaments', 'Filaments_Nocardia_index', 'Filaments_Microthrix_index', 'Filaments_N. Limicola_index', 'Filaments_Thiothrix_index', 'Filaments_0041/0675_index', 'Filaments_0092_index', 'Filaments_1851_index', 'Filaments_beggiatoa_index', 'Filaments_zoogloea_index']
+    return data_reactor1, data_reactor2, data_reactor3, data_reactor4
 
 
 # def add_micro_to_reactor_df(data: pd.DataFrame, data_reactor1: pd.DataFrame, data_reactor2: pd.DataFrame, data_reactor3: pd.DataFrame, data_reactor4: pd.DataFrame,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
