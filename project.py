@@ -102,23 +102,7 @@ def split_microscopic_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.D
     return data_reactor1, data_reactor2, data_reactor3, data_reactor4
 
 
-# def add_micro_to_reactor_df(data: pd.DataFrame, data_reactor1: pd.DataFrame, data_reactor2: pd.DataFrame, data_reactor3: pd.DataFrame, data_reactor4: pd.DataFrame,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-#     """Split the microscopic data frame and add the data to 4 dataframes for each reactor.
-#     Change the columns names to be identical
-    
-#     Returns
-#     -------
-#     data frame
-#         data_reactor1, data_reactor2, data_reactor3, data_reactor4
+# def join microscopic and SVI data (data: pd.DataFrame, data_reactor1: pd.DataFrame, data_reactor2: pd.DataFrame, data_reactor3: pd.DataFrame, data_reactor4: pd.DataFrame,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 #     """
-
-#     reactor1_col = [col for col in data.columns if '1' in col]
-
-#     data_reactor1 = data[["Date", "SV reactor 1", "SVI1"]]
-#     data_reactor2 = data[["Date", "SV reactor 2", "SVI2"]]
-#     data_reactor3 = data[["Date", "SV reactor 3", "SVI3"]]
-#     data_reactor4 = data[["Date", "SV reactor 4", "SVI4"]]
-#     df_list=[data_reactor1, data_reactor2, data_reactor3, data_reactor4]
-#     for df in df_list:
-#         df.columns= ['date', 'Settling_velocity', 'SVI']
-#     return data_reactor1, data_reactor2, data_reactor3, data_reactor4
+#     """
+    
