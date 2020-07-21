@@ -39,6 +39,8 @@ INSTALL_REQUIRES = [
     'pathlib',
     'matplotlib',
     'mkdocs',
+    'typing',
+    'openpyxl',
 
 ]
 
