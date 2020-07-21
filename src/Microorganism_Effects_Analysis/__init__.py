@@ -1,0 +1,8 @@
+__version__ = "0.1.0"
+__title__ = "Microorganism Effects Analysis"
+__description__ = "Microorganism Effects Analysis"
+__url__ = "https://github.com/efratkohen/Microorganism-Effects-Analysis.git"
+__doc__ = __description__ + " <" + __url__ + ">"
+__author__ = "Efrat kohen"
+__email__ = "efrat.kohen@gmail.com"
+__license__ = "MIT"
