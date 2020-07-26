@@ -119,7 +119,7 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
         last_col = 1+37*(i+1)
         micro_reactor_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
         micro_reactor_df.columns = [
-            "time",
+            "date",
             "ameoba_arcella",
             "ameoba_nude ameba",
             "crawling ciliates_aspidisca",
