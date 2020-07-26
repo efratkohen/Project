@@ -13,7 +13,7 @@ data_SVI = data_SVI.interpolate()
 data_SVI_clean = SVI_calculate(data_SVI)
 data_reactor1, data_reactor2, data_reactor3, data_reactor4 = split_SVI_to_reactor(data_SVI_clean)
 df_list=[data_reactor1, data_reactor2, data_reactor3, data_reactor4]
-SVI_label=[190.0, 160.0] 
+SVI_label=[190.0, 160.0]
 "define between bad, reasonable and good result for SVI"
 SV_label=[2.5, 3.0] 
 "define between bad, reasonable and good result for SV"

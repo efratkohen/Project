@@ -105,4 +105,3 @@ def split_microscopic_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.D
 # def join microscopic and SVI data (data: pd.DataFrame, data_reactor1: pd.DataFrame, data_reactor2: pd.DataFrame, data_reactor3: pd.DataFrame, data_reactor4: pd.DataFrame,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 #     """
 #     """
-    
