@@ -42,15 +42,15 @@ def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def SVI_calculate(data: pd.DataFrame) -> pd.DataFrame:
+def SVI_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
     """Add column of SVI caculation fot each reactor"""
     for i in range(1, 5):
-        data[f"SVI{i}"] = data[f"volume reactor {i}"] * 1000 / data[f"mlss reactor {i}"]
+        data_svi[f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
 
-    return data
+    return data_svi
 
 
-def split_SVI_to_reactor(data: pd.DataFrame):
+def split_SVI_to_reactor(data_svi: pd.DataFrame):
     """Split the SVI data frame to 4 dataframes for each reactor.
     Change the columns names to be identical
     
@@ -61,29 +61,29 @@ def split_SVI_to_reactor(data: pd.DataFrame):
     """
     svi_df_lst = []
     for i in range(1, 5):
-        reactor_df = data[["Date", f"SV reactor {i}", f"SVI{i}"]]
+        reactor_df = data_svi[["Date", f"SV reactor {i}", f"SVI{i}"]]
         reactor_df.columns = ["date", "Settling_velocity", "SVI"]
         svi_df_lst.append(reactor_df)
     return svi_df_lst
 
 
-def label_data(data: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:
+def label_data(data_svi: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:
     """add labels column for SVI and SV results as bad, reasonable or good"""
 
-    data["SV_label"] = np.where(
-        data.loc[:, "Settling_velocity"] <= label_SV[0],
+    data_svi["SV_label"] = np.where(
+        data_svi.loc[:, "Settling_velocity"] <= label_SV[0],
         "bad",
-        np.where(data.loc[:, "Settling_velocity"] <= label_SV[1], "reasonable", "good"),
+        np.where(data_svi.loc[:, "Settling_velocity"] <= label_SV[1], "reasonable", "good"),
     )
-    data["SVI_label"] = np.where(
-        data.loc[:, "SVI"] >= label_SVI[0],
+    data_svi["SVI_label"] = np.where(
+        data_svi.loc[:, "SVI"] >= label_SVI[0],
         "bad",
-        np.where(data.loc[:, "SVI"] >= label_SVI[1], "reasonable", "good"),
+        np.where(data_svi.loc[:, "SVI"] >= label_SVI[1], "reasonable", "good"),
     )
-    return data
+    return data_svi
 
 
-def split_microscopic_to_reactor(data: pd.DataFrame):
+def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     """Split the microscopic data frame to 4 dataframes for each reactor.
     Change the columns names to be identical
     
@@ -97,7 +97,7 @@ def split_microscopic_to_reactor(data: pd.DataFrame):
         # 37 columns for each reactor, starting with 1:38...
         first_col = 1+37*i
         last_col = 1+37*(i+1)
-        micro_reactor_df = data.iloc[:, np.r_[0, first_col:last_col]]
+        micro_reactor_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
         micro_reactor_df.columns = [
             "time",
             "ameoba_arcella",
