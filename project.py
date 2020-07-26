@@ -76,8 +76,7 @@ def split_SVI_to_reactor(data_svi: pd.DataFrame):
     
     Returns
     -------
-    data frame
-        data_reactor1, data_reactor2, data_reactor3, data_reactor4
+    svi_df_lst: List of 4 dfs, each representing a bio_reactor
     """
     svi_df_lst = []
     for i in range(1, 5):
@@ -109,8 +108,7 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     
     Returns
     -------
-    data frame
-        data_reactor1, data_reactor2, data_reactor3, data_reactor4
+    micro_df_list: List of 4 dfs, each representing a bio_reactor
     """
     micro_df_list = []
     for i in range(0,4):
