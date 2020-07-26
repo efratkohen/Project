@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 
-
 def check_file(data_fname: Union[pathlib.Path, str]):
     """Check for valid file
     accept strings and pathlib.Path objects"""
@@ -24,6 +23,7 @@ def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
     """Reads data into DF"""
     data = pd.read_csv(data_fname)
     return data
+
 
 def convert_str_to_date(s: str) -> datetime:
     '''
