@@ -260,7 +260,9 @@ def clean_micro_df(micro_df: pd.DataFrame):
     assert_totals_correct(micro_df)
     return micro_df
 
-
+def clean_micro_df_list(micro_df_list: list):
+    for i in range(4):
+        micro_df_list[i] = clean_micro_df(micro_df_list[i])
 
 
 
