@@ -34,14 +34,15 @@ def convert_str_to_date(s: str) -> datetime:
     date_obj = datetime.strptime(d_m_y, '%d/%m/%Y').date()
     return date_obj
 
+
 def convert_dates_to_date_object(data: pd.DataFrame):
     '''
     Runs on all rows of df. 
     turns strings of 'date' columns to date objects.
     '''
     for i in range(data.shape[0]):
-        data.loc[i, 'date'] = convert_str_to_date(data.loc[i, 'date'])
-    # return data
+        data.loc[i, 'Date'] = convert_str_to_date(data.loc[i, 'Date'])
+
 
 def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
