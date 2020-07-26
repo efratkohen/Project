@@ -160,11 +160,41 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
 
     return micro_df_list
 
-# for i in range(0,4):
-#     a = 1+37*i
-#     b = 1+37*(i+1)
-#     print(a,b)
+def remove_nan_rows(micro_df: pd.DataFrame):
+    '''
+    Removes rows that contain only nan values (except date column)
 
-# def join microscopic and SVI data (data: pd.DataFrame, data_reactor1: pd.DataFrame, data_reactor2: pd.DataFrame, data_reactor3: pd.DataFrame, data_reactor4: pd.DataFrame,) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-#     """
-#     """
+    Returns
+    ------
+    changes inplace
+    '''
+    data_cols = micro_df.columns.tolist()[1:]
+    micro_df.dropna(how = 'all', subset = data_cols, inplace=True)
+
+def remove_negatives(micro_df: pd.DataFrame):
+    '''
+    Replaces negative values with NaN
+    '''
+
+
+def filaments_zero_to_nan(micro_df: pd.DataFrame):
+    '''
+    If a row has all its "filament" columns 0 - 
+    turns all the "filament" values to NaN.
+
+    Returns
+    ------
+    changes inplace
+    '''
+    ## find col index of first filament:
+    for i in range(len(micro_df.columns)):
+    if 'Filaments' in micro_df.columns[i]:
+        first_filament = i
+        break
+
+    for i in range(micro_df.shape[0]):
+        if (micro_df.iloc[i, first_filament:]==0).all():
+            micro_df.iloc[i, first_filament:]= np.nan
+            print(f'row {i} was fixed to nan in micro_data')
+    
+
