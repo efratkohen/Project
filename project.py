@@ -51,7 +51,7 @@ def SVI_calculate(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def split_SVI_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def split_SVI_to_reactor(data: pd.DataFrame):
     """Split the SVI data frame to 4 dataframes for each reactor.
     Change the columns names to be identical
     
@@ -60,15 +60,12 @@ def split_SVI_to_reactor(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame
     data frame
         data_reactor1, data_reactor2, data_reactor3, data_reactor4
     """
-
-    data_reactor1 = data[["Date", "SV reactor 1", "SVI1"]]
-    data_reactor2 = data[["Date", "SV reactor 2", "SVI2"]]
-    data_reactor3 = data[["Date", "SV reactor 3", "SVI3"]]
-    data_reactor4 = data[["Date", "SV reactor 4", "SVI4"]]
-    df_list=[data_reactor1, data_reactor2, data_reactor3, data_reactor4]
-    for df in df_list:
-        df.columns= ['date', 'Settling_velocity', 'SVI']
-    return data_reactor1, data_reactor2, data_reactor3, data_reactor4
+    svi_df_lst = []
+    for i in range(1,5):
+        reactor_df = data[["Date", f"SV reactor {i}", f"SVI{i}"]]
+        reactor_df.columns= ['date', 'Settling_velocity', 'SVI']
+        svi_df_lst.append(reactor_df)
+    return svi_df_lst
 
 
 def label_data(data: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:
