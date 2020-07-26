@@ -43,7 +43,7 @@ def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def SVI_calculate(data: pd.DataFrame) -> pd.DataFrame:
-    """Add column of SVI caculation fot each reactor"""
+    """Add columns of SVI caculation fot each reactor"""
 
     data["SVI1"] = data["volume reactor 1"] * 1000 / data["mlss reactor 1"]
     data["SVI2"] = data["volume reactor 2"] * 1000 / data["mlss reactor 2"]
