@@ -240,15 +240,26 @@ def assert_totals_correct(micro_df: pd.DataFrame):
         'Total Count- Filaments':['Filaments_Nocardia_index','Filaments_Microthrix_index', 'Filaments_N. Limicola_index', 'Filaments_Thiothrix_index', 'Filaments_0041/0675_index', 'Filaments_0092_index', 'Filaments_1851_index', 'Filaments_beggiatoa_index', 'Filaments_zoogloea_index']
         }
     for i in range(micro_df.shape[0]):
-        print(f'i = {i}')
+        # print(f'i = {i}')
         for group in totals_dict:
-            print(f'group {group}')
+            # print(f'group {group}')
             written_sum = micro_df.loc[i, group]
             if not pd.isnull(written_sum):
                 our_sum = np.sum(micro_df.loc[i, totals_dict[group]])
                 assert our_sum == written_sum, (f'wrong total of group "{group}" row {i},'+ 
                                                 f'sum written {written_sum}, our_sum {our_sum}')
     
+def clean_micro_df(micro_df: pd.DataFrame):
+    '''
+    ...
+    '''
+    micro_df = remove_nan_rows(micro_df)
+    fix_spiro_and_float(micro_df)
+    remove_negatives(micro_df)
+    filaments_zero_to_nan(micro_df)
+    assert_totals_correct(micro_df)
+    return micro_df
+
 
 
 
