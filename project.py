@@ -113,8 +113,8 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     micro_df_list = []
     for i in range(0,4):
         # 37 columns for each reactor, starting with 1:38...
-        first_col = 1+37*i
-        last_col = 1+37*(i+1)
+        first_col = 1+36*i ## fix
+        last_col = 1+36*(i+1) ## fix
         micro_reactor_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
         micro_reactor_df.columns = [
             "date",
@@ -144,7 +144,7 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
             "Total Count- Worms",
             "Total Count- Spirochaetes",
             "Total Count- Flagellats",
-            "Total Count- Free Bacteria",
+            # "Total Count- Free Bacteria",###
             "Total Count- Filaments",
             "Filaments_Nocardia_index",
             "Filaments_Microthrix_index",
