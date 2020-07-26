@@ -41,7 +41,7 @@ def convert_dates_to_date_object(data: pd.DataFrame):
     turns strings of 'date' columns to date objects.
     '''
     for i in range(data.shape[0]):
-        data.iloc[i, 0] = convert_str_to_date(data.loc[i, 0])
+        data.iloc[i, 0] = convert_str_to_date(data.iloc[i, 0])
 
 
 def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
