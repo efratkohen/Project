@@ -3,6 +3,8 @@ import pathlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+
 
 
 def check_file(data_fname: Union[pathlib.Path, str]):
@@ -23,6 +25,23 @@ def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
     data = pd.read_csv(data_fname)
     return data
 
+def convert_str_to_date(s: str) -> datetime:
+    '''
+    Gets str like '04/08/2017 00:00'
+    Removes hours and turns it to datetime object.
+    '''
+    d_m_y = s.split()[0]
+    date_obj = datetime.strptime(d_m_y, '%d/%m/%Y').date()
+    return date_obj
+
+def convert_dates_to_date_object(data: pd.DataFrame):
+    '''
+    Runs on all rows of df. 
+    turns strings of 'date' columns to date objects.
+    '''
+    for i in range(data.shape[0]):
+        data.loc[i, 'date'] = convert_str_to_date(data.loc[i, 'date'])
+    # return data
 
 def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
