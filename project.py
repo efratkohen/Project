@@ -47,7 +47,7 @@ def convert_dates_to_date_object(data: pd.DataFrame):
 def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
 
-    data = data.replace(0, np.nan)
+    data.replace(0, np.nan, inplace=True)
     ranges_lst = [(0, 6), (0, 1000), (500, 4000)]
     col_names_lst = ["SV", "volume", "mlss"]
 
