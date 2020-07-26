@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 def check_file(data_fname: Union[pathlib.Path, str]):
     """Check for valid file
     accept strings and pathlib.Path objects"""
-
     try:
         fname = pathlib.Path(data_fname)
     except TypeError:
@@ -21,7 +20,6 @@ def check_file(data_fname: Union[pathlib.Path, str]):
 
 def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
     """Reads data into DF"""
-
     data = pd.read_csv(data_fname)
     return data
 
@@ -30,15 +28,17 @@ def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
 
     data = data.replace(0, np.nan)
-    data.loc[:, data.columns.str.contains("SV")] = data.loc[
-        :, data.columns.str.contains("SV")
-    ].apply(lambda x: [y if 0 < y < 6 else np.nan for y in x])
-    data.loc[:, data.columns.str.contains("volume")] = data.loc[
-        :, data.columns.str.contains("volume")
-    ].apply(lambda x: [y if 0 < y < 1000 else np.nan for y in x])
-    data.loc[:, data.columns.str.contains("mlss")] = data.loc[
-        :, data.columns.str.contains("mlss")
-    ].apply(lambda x: [y if 500 < y < 4000 else np.nan for y in x])
+    ranges_lst = [(0, 6),(0, 1000),(500, 4000)]
+    col_names_lst = ['SV','volume','mlss']
+
+    for i in range(3):
+        name = col_names_lst[i]
+        low = ranges_lst[i][0]
+        high = ranges_lst[i][1]
+        data.loc[:, data.columns.str.contains(name)] = data.loc[
+            :, data.columns.str.contains(name)
+        ].apply(lambda x: [y if low < y < high else np.nan for y in x])
+
     return data
 
 
