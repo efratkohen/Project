@@ -172,8 +172,7 @@ def remove_nan_rows(micro_df: pd.DataFrame):
     '''
     data_cols = micro_df.columns.tolist()[1:]
     micro_df.dropna(how = 'all', subset = data_cols, inplace=True)
-    micro_df = micro_df.reset_index(drop=True)
-    return micro_df
+    micro_df.reset_index(inplace=True, drop=True)
 
 
 def fix_spiro_and_float(micro_df: pd.DataFrame):
@@ -217,13 +216,13 @@ def filaments_zero_to_nan(micro_df: pd.DataFrame):
             first_filament = i
             break
     
-    print(f'first_fil = {first_filament}')
+    print(f'first_fil = {first_filament}') #later
 
     for i in range(micro_df.shape[0]):
         # if all fillaments are NaN or Zero, turn them all, including "Total" to NaN
         if (pd.isnull(micro_df.iloc[i, first_filament + 1:])).all() or (micro_df.iloc[i, first_filament + 1:]==0).all():
             micro_df.iloc[i, first_filament:] = np.nan
-            print(f'row {i} was fixed to nan in micro_data') # remove later
+            print(f'row {i} was fixed to nan in micro_data') #later
 
 
 def assert_totals_correct(micro_df: pd.DataFrame):
@@ -256,12 +255,11 @@ def clean_micro_df(micro_df: pd.DataFrame):
     '''
     ...
     '''
-    micro_df = remove_nan_rows(micro_df)
+    remove_nan_rows(micro_df)
     fix_spiro_and_float(micro_df)
     remove_negatives(micro_df)
     filaments_zero_to_nan(micro_df)
     assert_totals_correct(micro_df)
-    return micro_df
 
 def clean_micro_df_list(micro_df_list: list):
     for i in range(4):
