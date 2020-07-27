@@ -41,6 +41,10 @@ INSTALL_REQUIRES = [
     'mkdocs',
     'typing',
     'openpyxl',
+    'scikit-learn',
+    'scipy',
+    'threadpoolctl',
+    'seaborn',
 
 ]
 
