@@ -60,11 +60,12 @@ if __name__=='__main__':
     micro_df_list = micro_data_read()
     micro_df_list = dates_to_objects(micro_df_list)
     pr.clean_micro_df_list(micro_df_list)
+    
     # save to csv
     for i in range(4):
         fname = pathlib.Path('clean_tables/'+f'micro_{i}.csv')
         if not pathlib.Path(fname).is_file(): # only if it does not exist yet
-            micro_df_list[i].to_csv(fname)
+            micro_df_list[i].to_csv(fname, index=False)
 
     ##### SVI data ######
     svi_df_list = SVI_data_read()
@@ -76,7 +77,7 @@ if __name__=='__main__':
     for i in range(4):
         fname = pathlib.Path('clean_tables/'+f'svi_{i}.csv')
         if not pathlib.Path(fname).is_file(): # only if it does not exist yet
-            svi_df_list[i].to_csv(fname)
+            svi_df_list[i].to_csv(fname, index=False)
 
     
     
