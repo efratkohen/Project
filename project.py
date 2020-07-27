@@ -65,7 +65,7 @@ def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
 def SVI_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
     """Add column of SVI caculation fot each reactor"""
     for i in range(1, 5):
-        data_svi[f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
+        data_svi.loc[:,f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
 
     return data_svi
 

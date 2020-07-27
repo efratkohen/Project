@@ -31,7 +31,7 @@ def merge_data(first_col: int, last_col: int, data_micro: pd.DataFrame, data_svi
     for row in range(l):
         for col in range (1,5): 
             if(data_svi.loc[data_svi['date']==dates[row]].index[0] + hyper_param_day)<=data_svi.shape[0]:
-                join_df.iloc[row,col+8] = data_svi.iloc[data_svi.loc[data_svi['date']==dates[row]].index[0] + hyper_param_day,col]
+                join_df.iloc[row, col + last_col - first_col] = data_svi.iloc[data_svi.loc[data_svi['date']==dates[row]].index[0] + hyper_param_day,col]
     join_df = join_df[join_df.SV_label != 'init']
     return join_df
 
