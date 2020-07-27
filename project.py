@@ -175,18 +175,31 @@ def remove_nan_rows(micro_df: pd.DataFrame):
     micro_df.reset_index(inplace=True, drop=True)
 
 
-def fix_spiro_and_float(micro_df: pd.DataFrame):
+def fix_col_to_float(micro_df: pd.DataFrame, col_i: int):
     
     # fix values with commas
-    for i in range(micro_df.shape[0]):
-        datum = micro_df.loc[i,'spirochaetes_spirochaetes']
+    for row_i in range(micro_df.shape[0]):
+        datum = micro_df.iloc[row_i, col_i]
         if type(datum) is not str:
-            print(f'row {i} value {datum}')
+            print(f'row {row_i} value {datum}')
         elif ',' in datum:
             num = datum.split(',')
-            micro_df.loc[i,'spirochaetes_spirochaetes'] = num[0]+num[1]
+            micro_df.iloc[row_i, col_i] = num[0]+num[1]
 
-    micro_df["spirochaetes_spirochaetes"] = pd.to_numeric(micro_df["spirochaetes_spirochaetes"])
+    col_name = micro_df.columns[col_i]
+    micro_df[col_name] = pd.to_numeric(micro_df[col_name])
+
+def fix_object_cols_to_float(micro_df: pd.DataFrame):
+    '''
+    Convert 'object' columns with numbers to floats
+    '''
+    obj_cols_is = [] 
+    for col_i in range(1, len(micro_df.dtypes)): # exclude 'date' column
+        if micro_df.dtypes[col_i]==object:
+            obj_cols_is.append(col_i)
+    
+    for col_i in obj_cols_is:
+        fix_col_to_float(micro_df, col_i)
 
 
 def remove_negatives(micro_df: pd.DataFrame):
@@ -216,13 +229,13 @@ def filaments_zero_to_nan(micro_df: pd.DataFrame):
             first_filament = i
             break
     
-    print(f'first_fil = {first_filament}') #later
+    # print(f'first_fil = {first_filament}') #later
 
     for i in range(micro_df.shape[0]):
         # if all fillaments are NaN or Zero, turn them all, including "Total" to NaN
         if (pd.isnull(micro_df.iloc[i, first_filament + 1:])).all() or (micro_df.iloc[i, first_filament + 1:]==0).all():
             micro_df.iloc[i, first_filament:] = np.nan
-            print(f'row {i} was fixed to nan in micro_data') #later
+            # print(f'row {i} was fixed to nan in micro_data') #later
 
 
 def assert_totals_correct(micro_df: pd.DataFrame):
@@ -256,7 +269,7 @@ def clean_micro_df(micro_df: pd.DataFrame):
     ...
     '''
     remove_nan_rows(micro_df)
-    fix_spiro_and_float(micro_df)
+    fix_object_cols_to_float(micro_df)
     remove_negatives(micro_df)
     filaments_zero_to_nan(micro_df)
     assert_totals_correct(micro_df)
