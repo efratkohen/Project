@@ -67,8 +67,8 @@ def turn_str_to_date(date_s:str) -> datetime:
 
 if __name__=='__main__':
     svi_df_list = SVI_read_and_process()
-    microscopic_df_list = microscopic_data_read_and_process()
+    micro_df_list = microscopic_data_read_and_process()
     svi1 = svi_df_list[0]
-    microscopic1 = microscopic_df_list[0]
+    micro1 = micro_df_list[0]
     # svi1.to_excel(r"E:\python\Microorganism_Effects_Analysis\export_data_svi1.xlsx", index=False, header=True)
     # microscopic1.to_excel(r"E:\python\Microorganism_Effects_Analysis\export_data_microscopic1.xlsx", index=False, header=True)
