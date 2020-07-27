@@ -40,10 +40,14 @@ def SVI_data_read():
     svi_df_list = pr.split_svi_to_reactor(data_svi_computed)
     return svi_df_list
 
+def set_datetime_index(df_list: list):
+    for i in range(4):
+        df_list[i].set_index('date', inplace=True)
+        df_list[i].index = pd.to_datetime(df_list[i].index)
+
 def interpolate_svi_dfs(svi_df_list: list):
     for i in range(4):
-        # svi_df_list[i].set_index('date', inplace=True)
-        svi_df_list[i].interpolate(inplace=True)
+        svi_df_list[i].interpolate(inplace=True, method='time')
 
 def svi_lable(svi_df_list: list):
     SVI_label=[190.0, 160.0]
@@ -70,6 +74,7 @@ if __name__=='__main__':
     ##### SVI data ######
     svi_df_list = SVI_data_read()
     svi_df_list = dates_to_objects(svi_df_list)
+    set_datetime_index(svi_df_list)
     interpolate_svi_dfs(svi_df_list)
     svi_lable(svi_df_list)
 
@@ -77,7 +82,7 @@ if __name__=='__main__':
     for i in range(4):
         fname = pathlib.Path('clean_tables/'+f'svi_{i}.csv')
         if not pathlib.Path(fname).is_file(): # only if it does not exist yet
-            svi_df_list[i].to_csv(fname, index=False)
+            svi_df_list[i].to_csv(fname)
 
     
     
