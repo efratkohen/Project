@@ -25,7 +25,7 @@ def merge_data(first_col: int, last_col: int, data_micro: pd.DataFrame, data_svi
     """
 
     join_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
-    join_df['Settling_velocity'], join_df['SVI'], join_df['SV_label'], join_df['SVI_label']   = "init" , "init", "init", "init"
+    join_df.loc[:, 'Settling_velocity'], join_df.loc[:, 'SVI'], join_df.loc[:, 'SV_label'], join_df.loc[:, 'SVI_label']   = "init" , "init", "init", "init"
     dates = join_df["date"].to_list()
     l = join_df.shape[0]
     for row in range(l):

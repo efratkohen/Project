@@ -41,6 +41,7 @@ def microscopic_data_read_and_process():
     Reads microscopic data sheet.
     Splits to 4 bio reactors.
     Turns strings of 'date' columns to date objects.
+    Fixes wrong values.
     Return
     -------
     - bio_reactor_df_list: List of 4 dfs, each representing a bio_reactor
@@ -54,6 +55,7 @@ def microscopic_data_read_and_process():
 
     for bio_reactor_df in bio_reactor_df_list:
         bio_reactor_df = pr.convert_dates_to_date_object(bio_reactor_df)
+    # bio_reactor_df = pr.clean_micro_df_list(bio_reactor_df)
     return bio_reactor_df_list
 
 
@@ -71,4 +73,4 @@ if __name__=='__main__':
     svi1 = svi_df_list[0]
     micro1 = micro_df_list[0]
     # svi1.to_excel(r"E:\python\Microorganism_Effects_Analysis\export_data_svi1.xlsx", index=False, header=True)
-    # microscopic1.to_excel(r"E:\python\Microorganism_Effects_Analysis\export_data_microscopic1.xlsx", index=False, header=True)
+    # micro1.to_excel(r"E:\python\Microorganism_Effects_Analysis\export_data_microscopic1.xlsx", index=False, header=True)

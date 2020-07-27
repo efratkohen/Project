@@ -89,12 +89,12 @@ def split_SVI_to_reactor(data_svi: pd.DataFrame):
 def label_data(data_svi: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:
     """add labels column for SVI and SV results as bad, reasonable or good"""
 
-    data_svi["SV_label"] = np.where(
+    data_svi.loc[:,"SV_label"] = np.where(
         data_svi.loc[:, "Settling_velocity"] <= label_SV[0],
         "bad",
         np.where(data_svi.loc[:, "Settling_velocity"] <= label_SV[1], "reasonable", "good"),
     )
-    data_svi["SVI_label"] = np.where(
+    data_svi.loc[:,"SVI_label"] = np.where(
         data_svi.loc[:, "SVI"] >= label_SVI[0],
         "bad",
         np.where(data_svi.loc[:, "SVI"] >= label_SVI[1], "reasonable", "good"),
@@ -112,9 +112,9 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     """
     micro_df_list = []
     for i in range(0,4):
-        # 37 columns for each reactor, starting with 1:38...
-        first_col = 1+36*i ## fix
-        last_col = 1+36*(i+1) ## fix
+        # 36 columns for each reactor, starting with 1:37...
+        first_col = 1+36*i 
+        last_col = 1+36*(i+1) 
         micro_reactor_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
         micro_reactor_df.columns = [
             "date",
@@ -144,7 +144,6 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
             "Total Count- Worms",
             "Total Count- Spirochaetes",
             "Total Count- Flagellats",
-            # "Total Count- Free Bacteria",###
             "Total Count- Filaments",
             "Filaments_Nocardia_index",
             "Filaments_Microthrix_index",
