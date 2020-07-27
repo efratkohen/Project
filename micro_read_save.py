@@ -68,11 +68,6 @@ if __name__=='__main__':
 
     ##### SVI data ######
     svi_df_list = SVI_data_read()
-    svi1 = svi_df_list[0]
-    svi2 = svi_df_list[1]
-    svi3 = svi_df_list[2]
-    svi4 = svi_df_list[3]
-
     svi_df_list = dates_to_objects(svi_df_list)
     interpolate_svi_dfs(svi_df_list)
     svi_lable(svi_df_list)
