@@ -186,7 +186,7 @@ def fix_col_to_float(micro_df: pd.DataFrame, col_i: int):
             micro_df.iloc[row_i, col_i] = num[0]+num[1]
 
     col_name = micro_df.columns[col_i]
-    micro_df[col_name] = pd.to_numeric(micro_df[col_name])
+    micro_df.col[:, col_name] = pd.to_numeric(micro_df[col_name])
 
 def fix_object_cols_to_float(micro_df: pd.DataFrame):
     '''
