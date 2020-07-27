@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import svm
+from sklearn.neighbors import KNeighborsClassifier
 
 def drop_nan_rows(microscopic_df_list: list):
     """Drop nan rows from microscopic dataframe"""
@@ -42,3 +43,15 @@ def merge_data_df_list(first_col: int, last_col: int, micro_df_list: list, svi_d
         reactor_df = merge_data(first_col, last_col, micro_df_list[i], svi_df_list[i], hyper_param_day)
         join_df_list.append(reactor_df)
     return join_df_list
+
+
+def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
+    k_range = range(1,k_max)
+    scores_k = []
+    for k in k_range:
+        knn = KNeighborsClassifier(n_neighbors=k)
+        knn.fit(X_train, y_train)
+        scores_k.append(knn.score(X_test, y_test))
+    scores_data = pd.DataFrame({"k": k_range, "score": scores_k})
+    return scores_data
+    
