@@ -179,14 +179,12 @@ def fix_col_to_float(micro_df: pd.DataFrame, col_i: int):
     # fix values with commas
     for row_i in range(micro_df.shape[0]):
         datum = micro_df.iloc[row_i, col_i]
-        if type(datum) is not str:
-            print(f'row {row_i} value {datum}')
-        elif ',' in datum:
+        if type(datum) is str and ',' in datum:
             num = datum.split(',')
             micro_df.iloc[row_i, col_i] = num[0]+num[1]
 
     col_name = micro_df.columns[col_i]
-    micro_df.col[:, col_name] = pd.to_numeric(micro_df[col_name])
+    micro_df.loc[:, col_name] = pd.to_numeric(micro_df[col_name])
 
 def fix_object_cols_to_float(micro_df: pd.DataFrame):
     '''
@@ -272,6 +270,7 @@ def clean_micro_df(micro_df: pd.DataFrame):
     remove_negatives(micro_df)
     filaments_zero_to_nan(micro_df)
     assert_totals_correct(micro_df)
+    return micro_df
 
 def clean_micro_df_list(micro_df_list: list):
     for i in range(4):

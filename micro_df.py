@@ -22,6 +22,7 @@ def microscopic_data_read_and_process():
 
 if __name__=='__main__':
     micro_df_list = microscopic_data_read_and_process()
+    pr.clean_micro_df_list(micro_df_list)
     micro1 = micro_df_list[0]
     micro2 = micro_df_list[1]
     micro3 = micro_df_list[2]
