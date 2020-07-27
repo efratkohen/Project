@@ -44,7 +44,7 @@ def convert_dates_to_date_object(data: pd.DataFrame):
         data.iloc[i, 0] = convert_str_to_date(data.iloc[i, 0])
 
 
-def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
+def check_svi_values(data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
 
     data.replace(0, np.nan, inplace=True)
@@ -62,15 +62,7 @@ def check_SVI_values(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def SVI_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
-    """Add column of SVI caculation fot each reactor"""
-    for i in range(1, 5):
-        data_svi.loc[:,f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
-
-    return data_svi
-
-
-def split_SVI_to_reactor(data_svi: pd.DataFrame):
+def split_svi_to_reactor(data_svi: pd.DataFrame):
     """Split the SVI data frame to 4 dataframes for each reactor.
     Change the columns names to be identical
     
@@ -84,6 +76,14 @@ def split_SVI_to_reactor(data_svi: pd.DataFrame):
         reactor_df.columns = ["date", "Settling_velocity", "SVI"]
         svi_df_lst.append(reactor_df)
     return svi_df_lst
+
+
+def svi_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
+    """Add column of SVI caculation fot each reactor"""
+    for i in range(1, 5):
+        data_svi.loc[:,f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
+
+    return data_svi
 
 
 def label_data(data_svi: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:

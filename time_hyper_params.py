@@ -24,10 +24,10 @@ def SVI_read_and_process():
     fname = "SVI.csv"
     data_fname = pr.check_file(fname)
     data_SVI = pr.read_data(data_fname)
-    data_SVI = pr.check_SVI_values(data_SVI)
-    data_SVI = data_SVI.interpolate()
-    data_SVI_clean = pr.SVI_calculate(data_SVI)
-    data_reactor1, data_reactor2, data_reactor3, data_reactor4 = pr.split_SVI_to_reactor(data_SVI_clean)
+    data_SVI = pr.check_svi_values(data_SVI)
+    data_SVI = data_svi.interpolate()
+    data_SVI_clean = pr.svi_calculate(data_SVI)
+    data_reactor1, data_reactor2, data_reactor3, data_reactor4 = pr.split_svi_to_reactor(data_SVI_clean)
     bio_reactor_df_list = [data_reactor1, data_reactor2, data_reactor3, data_reactor4]
 
     for bio_reactor_df in bio_reactor_df_list:
