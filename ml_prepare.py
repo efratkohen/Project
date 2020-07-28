@@ -4,7 +4,7 @@ import files_process_save as fps
 import matplotlib.pyplot as plt
 
 
-class Ml_prepare():
+class ML_prepare():
     def __init__(self):
         self._svi_lst = self.read_and_index_svi_tables()
         self._micro_lst = self.read_and_index_micro_tables()
@@ -74,7 +74,7 @@ class Ml_prepare():
         svi_y_lst = []
         micro_x_lst = []
         for bio_reactor_i in range(4):  # loop over bio reactors
-            micro_x, svi_y = data.create_x_y_bioreactor(bio_reactor_i)
+            micro_x, svi_y = self.create_x_y_bioreactor(bio_reactor_i)
             micro_x_lst.append(micro_x)
             svi_y_lst.append(svi_y)
 
@@ -97,11 +97,11 @@ class Ml_prepare():
         """
         Returns for this bio reactor the micro_x and svi_y with the correct delay.
         """
-        svi_y = pd.DataFrame(columns=data._svi_lst[0].columns)  # empty svi_y
-        micro_x = data._micro_lst[bio_reactor_i].copy()
+        svi_y = pd.DataFrame(columns=self._svi_lst[0].columns)  # empty svi_y
+        micro_x = self._micro_lst[bio_reactor_i].copy()
         matching_dates = []
-        for date in data._micro_lst[bio_reactor_i].index:
-            closest_date = data.find_closest_date(bio_reactor_i, date)
+        for date in self._micro_lst[bio_reactor_i].index:
+            closest_date = self.find_closest_date(bio_reactor_i, date)
             # print(f'date0 = {date}, closest date = {closest_date}') # later
             if not closest_date:  # if this is already out of bounds
                 # remove all rows from this point on from micro_x:
@@ -111,7 +111,7 @@ class Ml_prepare():
                 matching_dates.append(closest_date)
 
         # add all rows of desired dates:
-        svi_y = pd.concat([svi_y, data._svi_lst[bio_reactor_i].loc[matching_dates]])
+        svi_y = pd.concat([svi_y, self._svi_lst[bio_reactor_i].loc[matching_dates]])
 
         assert (
             svi_y.shape[0] == micro_x.shape[0]
