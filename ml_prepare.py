@@ -31,6 +31,12 @@ class ML_prepare():
     @property
     def delay(self):
         return self._delay
+    
+    def get_partial_table(self, x_section: str, labels: bool=False)
+        '''
+        x_section: str. 'all' / 'total_counts' / 'filaments' / 'bacteria'
+        '''
+        assert x_section in {'all','total_counts','filaments','bacteria'}, "x_section invalid. expected 'all' / 'total_counts' / 'filaments' / 'bacteria'"
 
     def read_and_index_svi_tables(self):
         svi_tables = self.__read_clean_tables("svi")
@@ -91,7 +97,14 @@ class ML_prepare():
 
         self._x = x
         self._y = y
+        self.join_x_y()
+
         return self.x, self.y
+
+    def join_x_y(self):
+        x = self._x.reset_index(level=1, drop=True)
+        y = self._y.reset_index(level=1, drop=True)
+        self.delay_table = pd.concat([x,y], axis=1, keys=['micro','svi'])
 
     def create_x_y_bioreactor(self, bio_reactor_i):
         """
@@ -145,7 +158,6 @@ class ML_prepare():
                 )  # later
                 final_date -= timedelta(days=1)
 
-
 if __name__ == "__main__":
     data = ML_prepare()
     data.plot_svi()
@@ -162,12 +174,12 @@ if __name__ == "__main__":
     # y4 = y.loc['4']
 
     # test assuming all dates were found
-    dif = timedelta(days =delay)
-    for i in range(1,5):
-        xi = x.loc[f'{i}']
-        yi = y.loc[f'{i}']
-        assert xi.shape[0]==yi.shape[0]
-        for row_i in range(len(xi.index)):
-            assert yi.index[row_i] == xi.index[row_i] + dif
+    # dif = timedelta(days =delay)
+    # for i in range(1,5):
+    #     xi = x.loc[f'{i}']
+    #     yi = y.loc[f'{i}']
+    #     assert xi.shape[0]==yi.shape[0]
+    #     for row_i in range(len(xi.index)):
+    #         assert yi.index[row_i] == xi.index[row_i] + dif
 
 
