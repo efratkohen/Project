@@ -42,18 +42,20 @@ class ML_prepare():
         'all' - gives all single organisms, (excludes total counts)
         '''
         assert x_section in {'all','total_counts','filaments','bacteria'}, "x_section invalid. expected 'all' / 'total_counts' / 'filaments' / 'bacteria'"
-        
+        pass
         if x_section=='all':
+            bacteria = self._x.iloc[:,:18]
+            filaments = self._x.iloc[:,27:]
 
-        elif x_section=='total_counts':
+        # elif x_section=='total_counts':
         
-        elif x_section=='filaments':
+        # elif x_section=='filaments':
 
-        else x_section=='bacteria':
+        # else x_section=='bacteria':
     
-        if y_labels:
-            # add SV_label and SVI_label
-        else:
+        # if y_labels:
+        #     # add SV_label and SVI_label
+        # else:
             # add Settling_velocity and SVI
 
 
