@@ -111,7 +111,7 @@ class ml_prepare:
                 matching_dates.append(closest_date)
 
         # add all rows of desired dates:
-        svi_y = pd.concat([svi_y, svi0.loc[matching_dates]])
+        svi_y = pd.concat([svi_y, data._svi_lst[bio_reactor_i].loc[matching_dates]])
 
         assert (
             svi_y.shape[0] == micro_x.shape[0]
@@ -149,5 +149,25 @@ class ml_prepare:
 if __name__ == "__main__":
     data = ml_prepare()
     data.plot_svi()
-    x, y = data.create_x_y_delayed(days_delay=5)
+    delay = 5
+    x, y = data.create_x_y_delayed(days_delay=delay)
+
+    # x1 = x.loc['1']
+    # y1 = y.loc['1']
+    # x2 = x.loc['2']
+    # y2 = y.loc['2']
+    # x3 = x.loc['3']
+    # y3 = y.loc['3']
+    # x4 = x.loc['4']
+    # y4 = y.loc['4']
+
+    # test assuming all dates were found
+    dif = timedelta(days = delay)
+    for i in range(1,5):
+        xi = x.loc[f'{i}']
+        yi = y.loc[f'{i}']
+        assert xi.shape[0]==yi.shape[0]
+        for row_i in range(len(xi.index)):
+            assert yi.index[row_i] == xi.index[row_i] + dif
+
 
