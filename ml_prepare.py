@@ -4,7 +4,7 @@ import files_process_save as fps
 import matplotlib.pyplot as plt
 
 
-class ml_prepare:
+class Ml_prepare():
     def __init__(self):
         self._svi_lst = self.read_and_index_svi_tables()
         self._micro_lst = self.read_and_index_micro_tables()
@@ -147,7 +147,7 @@ class ml_prepare:
 
 
 if __name__ == "__main__":
-    data = ml_prepare()
+    data = Ml_prepare()
     data.plot_svi()
     delay = 4
     x, y = data.create_x_y_delayed(days_delay=delay)
