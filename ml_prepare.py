@@ -149,7 +149,7 @@ class ml_prepare:
 if __name__ == "__main__":
     data = ml_prepare()
     data.plot_svi()
-    delay = 5
+    delay = 4
     x, y = data.create_x_y_delayed(days_delay=delay)
 
     # x1 = x.loc['1']
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     # y4 = y.loc['4']
 
     # test assuming all dates were found
-    dif = timedelta(days = delay)
+    dif = timedelta(days =delay)
     for i in range(1,5):
         xi = x.loc[f'{i}']
         yi = y.loc[f'{i}']
