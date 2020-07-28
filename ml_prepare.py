@@ -13,11 +13,7 @@ class ML_prepare():
         self._delay = 0
         
         self.delay_table = 0
-        self.x_bacteria = 0
-        self.x_filaments = 0
-        self.x_totals = 0
-        self.y_num = 0
-        self.y_labels = 0
+        
 
     @property
     def svi_lst(self):
