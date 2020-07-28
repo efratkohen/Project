@@ -11,6 +11,13 @@ class ML_prepare():
         self._x = 0
         self._y = 0
         self._delay = 0
+        
+        self.delay_table = 0
+        self.x_bacteria = 0
+        self.x_filaments = 0
+        self.x_totals = 0
+        self.y_num = 0
+        self.y_labels = 0
 
     @property
     def svi_lst(self):
@@ -32,11 +39,30 @@ class ML_prepare():
     def delay(self):
         return self._delay
     
-    def get_partial_table(self, x_section: str, labels: bool=False)
+    def get_partial_table(self, x_section: str, y_labels: bool=False):
         '''
         x_section: str. 'all' / 'total_counts' / 'filaments' / 'bacteria'
+
+        'all' - gives all single organisms, (excludes total counts)
         '''
         assert x_section in {'all','total_counts','filaments','bacteria'}, "x_section invalid. expected 'all' / 'total_counts' / 'filaments' / 'bacteria'"
+        
+        if x_section=='all':
+
+        elif x_section=='total_counts':
+        
+        elif x_section=='filaments':
+
+        else x_section=='bacteria':
+    
+        if y_labels:
+            # add SV_label and SVI_label
+        else:
+            # add Settling_velocity and SVI
+
+
+        ready_xy_table.dropna(inplace=True)
+
 
     def read_and_index_svi_tables(self):
         svi_tables = self.__read_clean_tables("svi")
