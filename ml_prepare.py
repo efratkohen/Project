@@ -195,10 +195,21 @@ if __name__ == "__main__":
     data = ML_prepare(delay)
     # data.plot_svi()
 
-    sections = ['all','total_counts']
-    
-    for section in sections:
-        t = data.get_partial_table(x_section=section,y_labels=True)
+    delay = [*range(0, 18, 3)]
+    sections = ['all','total_counts', 'filaments', 'various']
+
+    for delay in delay_lst:
+        data = ML_prepare(delay)
+        for section in sections:
+            table_xy = data.get_partial_table(x_section=section,y_labels=True)
+            x_train = table_xy.loc['1':'3','x']
+            x_test = table_xy.loc['4','x']
+            y_train = table_xy.loc['1':'3','x']
+            y_test = table_xy.loc['4','x']
+
+            # model
+
+
 
 
 
