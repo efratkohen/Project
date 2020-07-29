@@ -193,7 +193,14 @@ class ML_prepare():
 if __name__ == "__main__":
     delay = 4
     data = ML_prepare(delay)
-    data.plot_svi()
+    # data.plot_svi()
+
+    sections = ['all','total_counts']
+    
+    for section in sections:
+        t = data.get_partial_table(x_section=section,y_labels=True)
+
+
 
     t = data.get_partial_table(x_section='all',y_labels=True)
     t1 = data.get_partial_table(x_section='total_counts',y_labels=True)
