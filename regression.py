@@ -16,16 +16,6 @@ def pca_plot(x_partly:pd.DataFrame, color_col=0):
     else:
         sns.scatterplot(data=pca_results, x='PCA1', y='PCA2', species=color_col)
 
-def get_x_totals(x):
-    total_cols = [col for col in x.columns if 'Total' in col]
-    x_totals = x.loc[:,total_cols]
-    return x_totals
-
-def get_x_filaments(x):
-    filament_cols = [col for col in x.columns if 'Filaments_' in col]
-    x_filaments = x.loc[:,filament_cols]
-    return x_filaments
-
 
 if __name__=='__main__':
     data = ML_prepare()
