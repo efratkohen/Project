@@ -57,7 +57,7 @@ def Lasso_model_plot(X_train, X_test, y_train, y_test):
 if __name__ == "__main__":
     delay = 4
     data = ML_prepare(delay=delay)
-    # create_section_and_PCA(data)
+    create_section_and_PCA(data)
 
     t_all = data.get_partial_table(x_section="all")
     t_filaments = data.get_partial_table(x_section="filaments")
