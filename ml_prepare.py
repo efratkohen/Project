@@ -12,7 +12,7 @@ class ML_prepare():
         self._y = 0
         self._delay = 0
         
-        self.delay_table = 0
+        self.delay_table = 0 # with partial NaN rows un-touched.
         
 
     @property
@@ -41,25 +41,29 @@ class ML_prepare():
 
         'all' - gives all single organisms, (excludes total counts)
         '''
-        assert x_section in {'all','total_counts','filaments','bacteria'}, "x_section invalid. expected 'all' / 'total_counts' / 'filaments' / 'bacteria'"
-        pass
-        if x_section=='all':
-            bacteria = self._x.iloc[:,:18]
-            filaments = self._x.iloc[:,27:]
-
-        # elif x_section=='total_counts':
+        assert x_section in {'all','total_counts','filaments','bacteria'}, ("x_section invalid." + 
+                                        "expected 'all' / 'total_counts' / 'filaments' / 'bacteria'")
         
-        # elif x_section=='filaments':
+        if x_section=='all': # no total counts
+            bacteria_x = self._x.iloc[:,:18].reset_index(level=1,drop=True)
+            filaments_x = self._x.iloc[:,27:].reset_index(level=1,drop=True)
+            only_x = pd.concat([bacteria_x, filaments_x], axis=1)
+        elif x_section=='total_counts':
+            only_x = self._x.iloc[:,18:27].reset_index(level=1,drop=True)
+        elif x_section=='filaments':
+            only_x = self._x.iloc[:,27:].reset_index(level=1,drop=True)
+        elif x_section=='bacteria':
+            only_x = self._x.iloc[:,:18].reset_index(level=1,drop=True)
 
-        # else x_section=='bacteria':
-    
-        # if y_labels:
-        #     # add SV_label and SVI_label
-        # else:
-            # add Settling_velocity and SVI
-
-
+        if y_labels:
+            only_y = self._y.loc[:,'SV_label':'SVI_label'].reset_index(level=1, drop=True)  
+        else:
+            only_y = self._y.loc[:,'Settling_velocity':'SVI'].reset_index(level=1, drop=True)
+        
+        ready_xy_table = pd.concat([only_x, only_y], keys = ['x','y'], axis=1)
         ready_xy_table.dropna(inplace=True)
+
+        return ready_xy_table
 
 
     def read_and_index_svi_tables(self):
@@ -169,7 +173,7 @@ class ML_prepare():
         # if out of bounds
         last_date = self._svi_lst[bio_reactor_i].index[-1]
         if final_date > last_date:
-            print("out of bounds")  # later
+            # print("out of bounds")  # later
             return False
 
         # else:
@@ -188,6 +192,13 @@ if __name__ == "__main__":
     delay = 4
     x, y = data.create_x_y_delayed(days_delay=delay)
 
+    t = data.get_partial_table(x_section='all',y_labels=True)
+    t1 = data.get_partial_table(x_section='total_counts',y_labels=True)
+    t2 = data.get_partial_table(x_section='filaments',y_labels=False)
+    t3 = data.get_partial_table(x_section='bacteria',y_labels=False)
+
+
+
     # x1 = x.loc['1']
     # y1 = y.loc['1']
     # x2 = x.loc['2']
@@ -197,13 +208,5 @@ if __name__ == "__main__":
     # x4 = x.loc['4']
     # y4 = y.loc['4']
 
-    # test assuming all dates were found
-    # dif = timedelta(days =delay)
-    # for i in range(1,5):
-    #     xi = x.loc[f'{i}']
-    #     yi = y.loc[f'{i}']
-    #     assert xi.shape[0]==yi.shape[0]
-    #     for row_i in range(len(xi.index)):
-    #         assert yi.index[row_i] == xi.index[row_i] + dif
 
 
