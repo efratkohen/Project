@@ -1,10 +1,11 @@
-import ml_prepare as ml_p
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from ml_prepare import ML_prepare
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
 
 def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
@@ -41,21 +42,27 @@ def score_by_label (y_test, y_predict):
 #     return scores_data
 
 if __name__ == "__main__":
-    data = ml_p.ML_prepare()
-    delay = [*range(0, 18, 3)]
-    score_delay = []
-    for i in range(6): 
-        x, y = data.create_x_y_delayed(days_delay=delay[i])
-        x_train = x.loc['1':'3'].iloc[:, 26:36].interpolate().bfill(axis ='rows').ffill(axis ='rows')
-        x_test = x.loc['4'].iloc[:, 26:36].interpolate().bfill(axis ='rows').ffill(axis ='rows')
-        y_train = y.loc['1':'3', "SV_label"]
-        y_test = y.loc['4', "SV_label"]
-        knn = KNeighborsClassifier(n_neighbors=10)
-        knn.fit(x_train, y_train)
-        y_predict=(knn.predict(x_test))
-        score_delay.append(score_by_label(y_test, y_predict))
-    for i in range(6):
-        print(f"result for delay= {delay[i]} : score_bad={score_delay[i][0]}, score_reasonable={score_delay[i][1]}, score_good={score_delay[i][2]}")
+    delay_lst = [*range(0, 18, 3)]
+    sections = ['all','total_counts', 'filaments', 'various']
+    labels = ['SV_label', 'SVI_label']
+    score_delay = [] 
+    for label in labels:
+        for section in sections:
+            for delay in delay_lst:
+                data = ML_prepare(delay)
+                table_xy = data.get_partial_table(x_section=section,y_labels=True)
+                X = table_xy.loc[:,'x']
+                y = table_xy['y', label]
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+                knn = KNeighborsClassifier(n_neighbors=10)
+                knn.fit(X_train, y_train)
+                y_predict=(knn.predict(X_test))
+                score = score_by_label(y_test, y_predict)
+                score_delay.append(score)
+                print(f"result for delay= {delay}, section= {section}, label={label} : score_bad={score[0]}, score_reasonable={score[1]}, score_good={score[2]}")
+
+
+    
     # score_bad, score_reasonable, score_good = score_by_label(y_test, y_predict)
     # print(f"score_bad={score_bad}, score_reasonable={score_reasonable}, score_good={score_good}")
     
