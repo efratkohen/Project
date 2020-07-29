@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 
 class ML_prepare():
     def __init__(self, delay: int):
-        self._svi_lst = self.read_and_index_svi_tables()
-        self._micro_lst = self.read_and_index_micro_tables()
+        self._svi_lst = self.__read_and_index_svi_tables()
+        self._micro_lst = self.__read_and_index_micro_tables()
         self._delay = delay
 
-        self._x, self._y = self.create_x_y_delayed(days_delay=self._delay)
-        self.delay_table = self.join_x_y() # with partial NaN rows un-touched.
+        self._x, self._y = self.__create_x_y_delayed(days_delay=self._delay)
+        self.delay_table = self.__join_x_y() # with partial NaN rows un-touched.
         
 
     @property
@@ -70,12 +70,12 @@ class ML_prepare():
         return ready_xy_table
 
 
-    def read_and_index_svi_tables(self):
+    def __read_and_index_svi_tables(self):
         svi_tables = self.__read_clean_tables("svi")
         fps.set_datetime_index(svi_tables)
         return svi_tables
 
-    def read_and_index_micro_tables(self):
+    def __read_and_index_micro_tables(self):
         micro_tables = self.__read_clean_tables("micro")
         fps.set_datetime_index(micro_tables)
         return micro_tables
@@ -100,7 +100,7 @@ class ML_prepare():
         plt.xticks(rotation=70)
         plt.show()
 
-    def create_x_y_delayed(self, days_delay: int):
+    def __create_x_y_delayed(self, days_delay: int):
         """
         Returns:
         ------
@@ -112,7 +112,7 @@ class ML_prepare():
         svi_y_lst = []
         micro_x_lst = []
         for bio_reactor_i in range(4):  # loop over bio reactors
-            micro_x, svi_y = self.create_x_y_bioreactor(bio_reactor_i)
+            micro_x, svi_y = self.__create_x_y_bioreactor(bio_reactor_i)
             micro_x_lst.append(micro_x)
             svi_y_lst.append(svi_y)
 
@@ -133,12 +133,12 @@ class ML_prepare():
 
         return self.x, self.y
 
-    def join_x_y(self):
+    def __join_x_y(self):
         x = self._x.reset_index(level=1, drop=True)
         y = self._y.reset_index(level=1, drop=True)
         return pd.concat([x,y], axis=1, keys=['micro','svi'])
 
-    def create_x_y_bioreactor(self, bio_reactor_i):
+    def __create_x_y_bioreactor(self, bio_reactor_i):
         """
         Returns for this bio reactor the micro_x and svi_y with the correct delay.
         """
@@ -146,7 +146,7 @@ class ML_prepare():
         micro_x = self._micro_lst[bio_reactor_i].copy()
         matching_dates = []
         for date in self._micro_lst[bio_reactor_i].index:
-            closest_date = self.find_closest_date(bio_reactor_i, date)
+            closest_date = self.__find_closest_date(bio_reactor_i, date)
             # print(f'date0 = {date}, closest date = {closest_date}') # later
             if not closest_date:  # if this is already out of bounds
                 # remove all rows from this point on from micro_x:
@@ -163,7 +163,7 @@ class ML_prepare():
         ), f"x and y for bio reactor {bio_reactor_i} not same length"
         return micro_x, svi_y
 
-    def find_closest_date(self, bio_reactor_i: int, date0):
+    def __find_closest_date(self, bio_reactor_i: int, date0):
         """
         Gets bio_reactor and date, 
         Finds in svi[bio_reactor_i] the closest row with date = date0 + delay
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     data = ML_prepare(delay)
     # data.plot_svi()
 
-    delay = [*range(0, 18, 3)]
+    delay_lst = [*range(0, 18, 3)]
     sections = ['all','total_counts', 'filaments', 'various']
 
     for delay in delay_lst:
@@ -217,17 +217,5 @@ if __name__ == "__main__":
     t1 = data.get_partial_table(x_section='total_counts',y_labels=True)
     t2 = data.get_partial_table(x_section='filaments',y_labels=False)
     t3 = data.get_partial_table(x_section='various',y_labels=False)
-
-
-
-    # x1 = x.loc['1']
-    # y1 = y.loc['1']
-    # x2 = x.loc['2']
-    # y2 = y.loc['2']
-    # x3 = x.loc['3']
-    # y3 = y.loc['3']
-    # x4 = x.loc['4']
-    # y4 = y.loc['4']
-
 
 
