@@ -30,22 +30,34 @@ def score_by_label (y_test, y_predict):
     return score_lst
 
 
+# def check_delay_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
+#     k_range = range(1,k_max)
+#     scores_k = []
+#     for k in k_range:
+#         knn = KNeighborsClassifier(n_neighbors=k)
+#         knn.fit(X_train, y_train)
+#         scores_k.append(knn.score(X_test, y_test))
+#     scores_data = pd.DataFrame({"k": k_range, "score": scores_k})
+#     return scores_data
+
 if __name__ == "__main__":
     data = ml_p.ML_prepare()
-    delay = [0, 3, 6, 9, 12, 15]
-    x = ["x_0", "x_3", "x_6", "x_9", "x_12", "x_15"]
-    y = ["y_0", "y_3", "y_6", "y_9", "y_12", "y_15"]
-    for i in range(1): #change to 6
-        x[i], y[i] = data.create_x_y_delayed(days_delay=delay[i])
-    x_train = x[0].loc['1':'3'].iloc[:, 18:26].interpolate()
-    x_test = x[0].loc['4'].iloc[:, 18:26].interpolate()
-    y_train = y[0].loc['1':'3', "SV_label"]
-    y_test = y[0].loc['4', "SV_label"]
-    knn = KNeighborsClassifier(n_neighbors=10)
-    knn.fit(x_train, y_train)
-    y_predict=(knn.predict(x_test))
-    score_bad, score_reasonable, score_good = score_by_label(y_test, y_predict)
-    print(f"score_bad={score_bad}, score_reasonable={score_reasonable}, score_good={score_good}")
+    delay = [*range(0, 18, 3)]
+    score_delay = []
+    for i in range(6): 
+        x, y = data.create_x_y_delayed(days_delay=delay[i])
+        x_train = x.loc['1':'3'].iloc[:, 26:36].interpolate().bfill(axis ='rows').ffill(axis ='rows')
+        x_test = x.loc['4'].iloc[:, 26:36].interpolate().bfill(axis ='rows').ffill(axis ='rows')
+        y_train = y.loc['1':'3', "SV_label"]
+        y_test = y.loc['4', "SV_label"]
+        knn = KNeighborsClassifier(n_neighbors=10)
+        knn.fit(x_train, y_train)
+        y_predict=(knn.predict(x_test))
+        score_delay.append(score_by_label(y_test, y_predict))
+    for i in range(6):
+        print(f"result for delay= {delay[i]} : score_bad={score_delay[i][0]}, score_reasonable={score_delay[i][1]}, score_good={score_delay[i][2]}")
+    # score_bad, score_reasonable, score_good = score_by_label(y_test, y_predict)
+    # print(f"score_bad={score_bad}, score_reasonable={score_reasonable}, score_good={score_good}")
     
     # scores_data = check_K_values(20, x_train, y_train, x_test, y_test)
     # sns.set()
