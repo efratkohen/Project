@@ -50,9 +50,9 @@ def interpolate_svi_dfs(svi_df_list: list):
         svi_df_list[i].interpolate(inplace=True, method='time')
 
 def svi_lable(svi_df_list: list):
-    SVI_label=[190.0, 160.0]
+    SVI_label=[160.0, 120.0]
     "define between bad, reasonable and good result for SVI"
-    SV_label=[2.5, 3.0] 
+    SV_label=[3.0, 3.5] 
     "define between bad, reasonable and good result for SV"
     for svi_df in svi_df_list:
         svi_df = pr.label_data(svi_df, SVI_label, SV_label)
