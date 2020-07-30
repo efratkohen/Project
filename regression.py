@@ -33,7 +33,6 @@ def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
     g.legend_.remove()
     g.set(title=f"{section} colored by {color_col}")
 
-
 def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     section_lst = ["all", "filaments", "total_counts", "various"]
     fig, ax = plt.subplots(4, 2)
@@ -72,6 +71,13 @@ def insert_scores_to_namedtuple(scores_lst:list):
     tup_scores = Tup_scores(*scores_lst)
     return tup_scores
 
+def regr_model_func(X, y, reg_model):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+    reg_model.fit(X_train, y_train)
+    score = reg_model.score(X_test, y_test)
+    return score
 
 def loop_over_sections_and_y(data: ML_prepare, regr_model):
     scores_lst = []
@@ -105,25 +111,51 @@ def get_scores_of_model(regr_model, model_name:str, print_flag:bool=True):
     
     return scores_by_delay_dict
 
-def regr_model_func(X, y, reg_model):
+def get_scores_of_all_models(models_dict: dict, print_flag:bool=True):
+    '''
+    '''
+    scores_models_dict = {}
+    for model in models_dict:
+        model_name = models_dict[model]
+        res = get_scores_of_model(model, model_name)
+        scores_models_dict[model_name] = res
+    return scores_models_dict
+
+
+    
+def run_models_on_same_data_and_plot(models_dict, X, y, x_name:str):
+    print(f'Predicting {y.name[1]} by {x_name}:')
+    for model in models_dict:
+        model_name = models_dict[model]
+        run_model_and_plot(model, model_name, X, y, x_name)
+    
+def run_model_and_plot(regr_model, model_name:str, X, y, x_name:str):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
-    reg_model.fit(X_train, y_train)
-    score = reg_model.score(X_test, y_test)
-    return score
+    regr_model.fit(X_train, y_train)
+    y_predicted = regr_model.predict(X)
+    reg_plot(y, y_predicted, model_name)
+
+def reg_plot(x_axis, y_axis, model_name):
     
+    
+
+    sns.set()
+    fig1, ax1 = plt.subplots()
+    sns.regplot(x_axis, y_axis, ax=ax1)
+    ax1.set_xlabel('real values')
+    ax1.set_ylabel('predicted')
+    fig1.suptitle(f'model {model_name}', fontsize=16)
+    plt.show()
+
 
 if __name__ == "__main__":
     data = ML_prepare(delay=4)
-    create_section_and_PCA(data, labled=True)
-    create_section_and_PCA(data, labled=False)
+    # create_section_and_PCA(data, labled=True)
+    # create_section_and_PCA(data, labled=False)
 
-    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
-    # scores_by_delay_dict_ElastNet = get_scores_of_model(model_func=ElasticNet_model)
-    # scores_by_delay_dict_SVR_lin = get_scores_of_model(model_func=SVR_linear)
-    # scores_by_delay_dict_SVR_rbf = get_scores_of_model(model_func=SVR_rbf)
-
+    ### create models
     las = linear_model.Lasso(alpha=1)
     elast = ElasticNet(random_state=0)
     ridge = Ridge(alpha=1.0)
@@ -132,11 +164,29 @@ if __name__ == "__main__":
 
     models_dict = {las:'Lasso', elast:'ElasticNet', ridge:'Ridge Regression', svr_lin:'SVR (lin)', svr_rbf:'SVR (rbf)'}
 
-    scores_models_dict = {}
-    for model in models_dict:
-        model_name = models_dict[model]
-        res = get_scores_of_model(model, model_name)
-        scores_models_dict[model_name] = res
+    # get scores for all models for all sections:
+    # scores_models_dict = get_scores_of_all_models(models_dict, print_flag=True)
+
+    # best looks SVI for filaments, after 3 days:
+    data2 = ML_prepare(delay=3)
+    filaments_table = data2.get_partial_table(x_section='filaments',y_labels=False)
+    filaments_x = filaments_table.loc[:,'x']
+    filaments_svi = filaments_table.loc[:,('y','SVI')]
+    run_models_on_same_data_and_plot(models_dict, filaments_x, filaments_svi, 'filaments')
+
+
+
+    
+
+
+    
+    # filaments = data.get_partial_table(x_section='filaments', y_labels=False)
+    # filaments_x = filaments.loc[:,'x']
+    # fils_melt = pd.melt(filaments_x)
+
+    # filaments_xy = pd.concat([filaments_x, filaments.loc[:,'y']], axis=1)
+
+    # sns.pairplot(filaments_xy)
 
 
 
