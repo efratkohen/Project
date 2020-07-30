@@ -67,6 +67,7 @@ def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> 
                 score = knn.score(X_test, y_test)
                 score_label.append(score)
                 score_delay.append(score_label)
+                # print(f"result for delay= {delay}, section= {section}, label={label} : score_bad={score_label[0]}, score_reasonable={score_label[1]}, score_good={score_label[2]}, score={score_label[3]}")
     return score_delay
 
 def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, score_lst_name: list ) -> pd.DataFrame:
@@ -86,10 +87,15 @@ def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, s
     return df 
 
 
-# def save_plot():
+# def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list, delay_lst: list):
 #     sns.set()
-#     sns.stripplot(data=scores_data, x='k', y='score', size=10)
-#     plt.ylim(0, 1)
+#     for label in labels:
+#         for section in sections:
+#             for score_type in score_lst_name:
+#                 sns.stripplot(data=score_df[label, section, score_type], x='delay', y='{label}, {section}, {score_type}', size=10)
+#                 score_df.plot(kind='scatter',x='delay',y=[label, section, score_type])
+#                 plt.ylim(0, 1)
+                # plt.savefig(f"KNeighbors_plot/{label}_{section}_{score_type}.png")
 
 
 if __name__ == "__main__":
