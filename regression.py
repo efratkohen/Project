@@ -1,17 +1,23 @@
 from ml_prepare import ML_prepare
+from collections import namedtuple
 from sklearn.decomposition import PCA
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
+
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
+from sklearn.svm import SVR
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 
 def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
     x_only = table_xy.loc[:, "x"]
 
-    pca_model = PCA(n_components=2)
+    pca_model = make_pipeline(StandardScaler(), PCA(n_components=2))
     pca_model.fit(x_only)
 
     X_2D = pca_model.transform(x_only)
@@ -48,8 +54,25 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     plt.tight_layout()
     plt.show()
 
+def insert_scores_to_namedtuple(scores_lst:list):
+    Tup_scores = namedtuple(
+        "Tup_scores",
+        [
+            "all_sv",
+            "all_svi",
+            "filaments_sv",
+            "filaments_svi",
+            "total_counts_sv",
+            "total_counts_svi",
+            "various_sv",
+            "various_svi",
+        ]
+    )
+    tup_scores = Tup_scores(*scores_lst)
+    return tup_scores
 
-def loop_over_sections_and_y(func):
+
+def loop_over_sections_and_y(func, data: ML_prepare):
     scores_lst = []
     section_lst = ["all", "filaments", "total_counts", "various"]
     for i in range(len(section_lst)):
@@ -58,10 +81,11 @@ def loop_over_sections_and_y(func):
         for j in range(2):
             score = func(X=table_xy.loc[:, "x"], y=table_xy.loc[:, ("y", y_cols[j])])
             scores_lst.append(score)
-            print(
-                f"Model: {func.__name__}\tfor section {section_lst[i]} y = {y_cols[j]}\t\tscore = {score:.3f}"
-            )
-    return scores_lst
+            # print(
+            #     f"Model: {func.__name__}\tfor section {section_lst[i]} y = {y_cols[j]}\t\tscore = {score:.3f}"
+            # )
+    tup_scores = insert_scores_to_namedtuple(scores_lst)
+    return tup_scores
 
 
 def Lasso_model(X, y):
@@ -73,44 +97,40 @@ def Lasso_model(X, y):
     score = lasso_model.score(X_test, y_test)
     return score
 
+def SVR_linear(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+    svr_l = make_pipeline(StandardScaler(), SVR())
+    svr_l.fit(X_train, y_train)
+    score = svr_l.score(X_test, y_test)
+    return score
+
+
+def get_scores_of_model(model_func=Lasso_model, print_flag=True):
+    
+    print(f'model: {model_func.__name__}')
+    scores_by_delay_dict = {}
+    for delay in range(1,13):
+        data = ML_prepare(delay=delay)
+        scores_by_delay_dict[delay] = loop_over_sections_and_y(func=model_func, data=data)
+
+    if print_flag:
+        for delay in scores_by_delay_dict:
+            tup_delay = scores_by_delay_dict[delay]
+            max_score = max(tup_delay)
+            name = [tup_delay._fields[i] for i in range(len(tup_delay)) if tup_delay[i]==max_score]
+            print(f'max score for delay {delay}\t {max_score:.2f}, for {name[0]}')
+    
+    return scores_by_delay_dict
+    
 
 if __name__ == "__main__":
-    data = ML_prepare(delay=3)
-    # create_section_and_PCA(data, labled=True)
-    # create_section_and_PCA(data, labled=False)
+    data = ML_prepare(delay=4)
+    create_section_and_PCA(data, labled=True)
+    create_section_and_PCA(data, labled=False)
 
-    scores_3 = loop_over_sections_and_y(func=Lasso_model)
+    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
+    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=SVR_linear)
 
-
-    scores_dict = {}
-    # for delay in range(2,9):
-    #     data = ML_prepare(delay=delay)
-    #     #
-
-    #     scores_dict[delay] = Lasso_model_scores(data)
-
-    # t_all = data.get_partial_table(x_section="all")
-    # t_filaments = data.get_partial_table(x_section="filaments")
-    # t_total = data.get_partial_table(x_section="total_counts")
-    # t_various = data.get_partial_table(x_section="various")
-
-    #####
-    # X_train, X_test, y_train, y_test = train_test_split(
-    #     t_filaments.loc[:, "x"],
-    #     t_filaments.loc[:, ("y", "SVI")],
-    #     test_size=0.25,
-    #     random_state=42,
-    # )
-
-    # lasso_model = linear_model.Lasso(alpha=1)
-    # lasso_model.fit(X_train, y_train)
-    # score = lasso_model.score(X_test, y_test)
-    # score_train = lasso_model.score(X_train, y_train)
-    # print(f"score = {score}")
-
-    # days = 4
-    # for section filaments y = SVI, score = 0.35173946953475366
-
-    # days = 3
-    # for section filaments y = SVI, score = 0.454
 
