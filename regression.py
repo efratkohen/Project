@@ -49,33 +49,45 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     plt.show()
 
 
-def Lasso_model_scores(data: ML_prepare):
-    """
-    """
+def loop_over_sections_and_y(func):
+    scores_lst = []
     section_lst = ["all", "filaments", "total_counts", "various"]
     for i in range(len(section_lst)):
         table_xy = data.get_partial_table(x_section=section_lst[i], y_labels=False)
         y_cols = table_xy.loc[:, "y"].columns.tolist()
         for j in range(2):
-            ### model on y = y_cols[j]
-            X_train, X_test, y_train, y_test = train_test_split(
-                table_xy.loc[:, "x"],
-                table_xy.loc[:, ("y", y_cols[j])],
-                test_size=0.25,
-                random_state=42,
+            score = func(X=table_xy.loc[:, "x"], y=table_xy.loc[:, ("y", y_cols[j])])
+            scores_lst.append(score)
+            print(
+                f"Model: {func.__name__}\tfor section {section_lst[i]} y = {y_cols[j]}\t\tscore = {score:.3f}"
             )
-            lasso_model = linear_model.Lasso(alpha=1)
-            lasso_model.fit(X_train, y_train)
-            score = lasso_model.score(X_test, y_test)
-            print(f'for section {section_lst[i]} y = {y_cols[j]}, score = {score:.3f}')
+    return scores_lst
+
+
+def Lasso_model(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+    lasso_model = linear_model.Lasso(alpha=1)
+    lasso_model.fit(X_train, y_train)
+    score = lasso_model.score(X_test, y_test)
+    return score
 
 
 if __name__ == "__main__":
-    delay = 4
-    data = ML_prepare(delay=delay)
-    create_section_and_PCA(data)
+    data = ML_prepare(delay=3)
+    # create_section_and_PCA(data, labled=True)
+    # create_section_and_PCA(data, labled=False)
 
-    Lasso_model_scores(data)
+    scores_3 = loop_over_sections_and_y(func=Lasso_model)
+
+
+    scores_dict = {}
+    # for delay in range(2,9):
+    #     data = ML_prepare(delay=delay)
+    #     #
+
+    #     scores_dict[delay] = Lasso_model_scores(data)
 
     # t_all = data.get_partial_table(x_section="all")
     # t_filaments = data.get_partial_table(x_section="filaments")
@@ -96,7 +108,9 @@ if __name__ == "__main__":
     # score_train = lasso_model.score(X_train, y_train)
     # print(f"score = {score}")
 
-
     # days = 4
     # for section filaments y = SVI, score = 0.35173946953475366
+
+    # days = 3
+    # for section filaments y = SVI, score = 0.454
 
