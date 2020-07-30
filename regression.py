@@ -8,6 +8,7 @@ import numpy as np
 import seaborn as sns
 
 from sklearn import linear_model
+from sklearn.linear_model import ElasticNet
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
@@ -92,7 +93,9 @@ def Lasso_model(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
-    lasso_model = linear_model.Lasso(alpha=1)
+
+    lasso_model = linear_model.Lasso(alpha=1) #
+
     lasso_model.fit(X_train, y_train)
     score = lasso_model.score(X_test, y_test)
     return score
@@ -101,15 +104,39 @@ def SVR_linear(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
-    svr_l = make_pipeline(StandardScaler(), SVR())
+
+    svr_l = make_pipeline(StandardScaler(), SVR(kernel='linear')) #
+
     svr_l.fit(X_train, y_train)
     score = svr_l.score(X_test, y_test)
+    return score
+
+def SVR_rbf(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+
+    svr_l = make_pipeline(StandardScaler(), SVR(kernel='rbf')) #
+
+    svr_l.fit(X_train, y_train)
+    score = svr_l.score(X_test, y_test)
+    return score
+
+def ElasticNet_model(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+
+    elast_mod = ElasticNet(random_state=0)
+
+    elast_mod.fit(X_train, y_train)
+    score = elast_mod.score(X_test, y_test)
     return score
 
 
 def get_scores_of_model(model_func=Lasso_model, print_flag=True):
     
-    print(f'model: {model_func.__name__}')
+    print(f'\nmodel: {model_func.__name__}')
     scores_by_delay_dict = {}
     for delay in range(1,13):
         data = ML_prepare(delay=delay)
@@ -130,7 +157,10 @@ if __name__ == "__main__":
     create_section_and_PCA(data, labled=True)
     create_section_and_PCA(data, labled=False)
 
-    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
-    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=SVR_linear)
+    scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
+    scores_by_delay_dict_ElastNet = get_scores_of_model(model_func=ElasticNet_model)
+    scores_by_delay_dict_SVR_lin = get_scores_of_model(model_func=SVR_linear)
+    scores_by_delay_dict_SVR_rbf = get_scores_of_model(model_func=SVR_rbf)
+
 
 
