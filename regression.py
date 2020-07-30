@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import scipy.stats
+
 
 from sklearn import linear_model
 from sklearn.linear_model import ElasticNet, Ridge
@@ -124,30 +126,46 @@ def get_scores_of_all_models(models_dict: dict, print_flag:bool=True):
 
     
 def run_models_on_same_data_and_plot(models_dict, X, y, x_name:str):
-    print(f'Predicting {y.name[1]} by {x_name}:')
+    fig1, ax1 = plt.subplots(1, 5, figsize = (18,4), sharey=True)
+    plt.xlim((65,210))
+    plt.ylim((65,210))
+    fig1.suptitle(f'Predicting {y.name[1]} by {x_name}, delay = 3 days:', fontsize=20, y=1.05)
+    
+    ax_count = 0
     for model in models_dict:
         model_name = models_dict[model]
-        run_model_and_plot(model, model_name, X, y, x_name)
+        run_model_and_plot(model, model_name, X, y, x_name, ax1[ax_count])
+        ax_count+=1
+
+    fig1.text(0.5, 0.0, 'Real values', ha='center', va='center', fontsize=14)
+    fig1.text(0.0, 0.5, 'Predicted', ha='center', va='center', fontsize=14, rotation=90)
+    plt.tight_layout()
+    plt.savefig("SVI_filaments_regression.png", dpi=150, bbox_inches = 'tight')
+    plt.show()
     
-def run_model_and_plot(regr_model, model_name:str, X, y, x_name:str):
+def run_model_and_plot(regr_model, model_name:str, X, y, x_name:str, ax_i):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
     regr_model.fit(X_train, y_train)
-    y_predicted = regr_model.predict(X)
-    reg_plot(y, y_predicted, model_name)
-
-def reg_plot(x_axis, y_axis, model_name):
+    y_predicted = regr_model.predict(X_test)
+    score = regr_model.score(X_test, y_test)
     
-    
+    reg_plot(y_test, y_predicted, model_name, score, ax_i)
 
+def reg_plot(x_axis, y_axis, model_name, score, ax_i):
+    '''
+    '''
     sns.set()
-    fig1, ax1 = plt.subplots()
-    sns.regplot(x_axis, y_axis, ax=ax1)
-    ax1.set_xlabel('real values')
-    ax1.set_ylabel('predicted')
-    fig1.suptitle(f'model {model_name}', fontsize=16)
-    plt.show()
+    sns.regplot(x_axis, y_axis, ax=ax_i)
+    r, pvalue = scipy.stats.pearsonr(x_axis,y_axis)
+
+    Mean_SE = np.mean((x_axis - y_axis)**2)
+
+    ax_i.text(70, 205, f'Pearson R: {r:.3f}\nP-value: {pvalue:.3e}\nMean SE: {Mean_SE:.2f}', va='top', ha='left', fontsize = 10)
+    ax_i.text(135, 75, f'Score (R^2): {score:.2f}', fontsize = 13, ha = 'left')
+    ax_i.set_title(f'{model_name}', fontsize=16)
+    ax_i.set_xlabel('')
 
 
 if __name__ == "__main__":
@@ -172,21 +190,20 @@ if __name__ == "__main__":
     filaments_table = data2.get_partial_table(x_section='filaments',y_labels=False)
     filaments_x = filaments_table.loc[:,'x']
     filaments_svi = filaments_table.loc[:,('y','SVI')]
+
     run_models_on_same_data_and_plot(models_dict, filaments_x, filaments_svi, 'filaments')
 
 
+    ###### for me later
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     filaments_x, filaments_svi, test_size=0.25, random_state=42,
+    # )
+    # ridge.fit(X_train, y_train)
+    # y_predicted = ridge.predict(filaments_x)
+
+    # mse = np.mean((ridge.predict(X_test) - y_test)**2)
 
     
-
-
-    
-    # filaments = data.get_partial_table(x_section='filaments', y_labels=False)
-    # filaments_x = filaments.loc[:,'x']
-    # fils_melt = pd.melt(filaments_x)
-
-    # filaments_xy = pd.concat([filaments_x, filaments.loc[:,'y']], axis=1)
-
-    # sns.pairplot(filaments_xy)
 
 
 
