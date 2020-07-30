@@ -3,21 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ml_prepare import ML_prepare
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-
-
-def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
-    k_range = range(1,k_max)
-    scores_k = []
-    for k in k_range:
-        knn = KNeighborsClassifier(n_neighbors=k)
-        knn.fit(X_train, y_train)
-        scores_k.append(knn.score(X_test, y_test))
-    scores_data = pd.DataFrame({"k": k_range, "score": scores_k})
-    return scores_data
-
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 def score_by_label (y_test, y_predict):
     """return score of prediction by label type"""
@@ -31,26 +21,7 @@ def score_by_label (y_test, y_predict):
     return score_lst
 
 
-def choose_k_value(section: str, label: str, delay: int):
-    """plot graph for KNeighborsClassifier and the user choose the k value by the result"""
-    data = ML_prepare(delay)
-    table_xy = data.get_partial_table(x_section=section,y_labels=True)
-    X = table_xy.loc[:,'x']
-    y = table_xy['y', label]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-    scores_data = check_K_values(20, X_train, y_train, X_test, y_test)
-    sns.set()
-    sns.stripplot(data=scores_data, x='k', y='score', size=10)
-    plt.ylim(0, 1)
-    print("please look at the graph and choose k value. press any key to continue")
-    input()
-    plt.show()
-    print("please insert k value")
-    k = int(input())
-    return k
-
-
-def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> list:
+def create_score_list(labels: list, sections: list, delay_lst: list) -> list:
     score_delay = [] 
     for label in labels:
         for section in sections:
@@ -60,11 +31,12 @@ def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> 
                 X = table_xy.loc[:,'x']
                 y = table_xy['y', label]
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-                knn = KNeighborsClassifier(n_neighbors = k)
-                knn.fit(X_train, y_train)
-                y_predict=(knn.predict(X_test))
+                clf = make_pipeline(StandardScaler(),
+                     LinearSVC(random_state=42, tol=1e-5))
+                clf.fit(X_train, y_train)
+                y_predict=(clf.predict(X_test))
                 score_label = score_by_label(y_test, y_predict)
-                score = knn.score(X_test, y_test)
+                score = clf.score(X_test, y_test)
                 score_label.append(score)
                 score_delay.append(score_label)
                 # print(f"result for delay= {delay}, section= {section}, label={label} : score_bad={score_label[0]}, score_reasonable={score_label[1]}, score_good={score_label[2]}, score={score_label[3]}")
@@ -103,12 +75,10 @@ if __name__ == "__main__":
     sections = ['all','total_counts', 'filaments', 'various']
     labels = ['SV_label', 'SVI_label']
     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
-    # k = choose_k_value('filaments', 'SVI_label', 12)
-    k = 9 # erase 
-    score_lst = create_score_list(labels, sections, delay_lst, k)
+    score_lst = create_score_list(labels, sections, delay_lst)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
-    print(score_df)
+    #print(score_df)
     
 
-    # x[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\x_0.xlsx", index=True, header=True)
+    score_df.to_excel(r"E:\python\Microorganism_Effects_Analysis\SVC_rendom_state_42.xlsx", index=True, header=True)
     # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)
