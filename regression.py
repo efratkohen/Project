@@ -8,7 +8,7 @@ import numpy as np
 import seaborn as sns
 
 from sklearn import linear_model
-from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import ElasticNet, Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
@@ -73,74 +73,28 @@ def insert_scores_to_namedtuple(scores_lst:list):
     return tup_scores
 
 
-def loop_over_sections_and_y(func, data: ML_prepare):
+def loop_over_sections_and_y(data: ML_prepare, regr_model):
     scores_lst = []
     section_lst = ["all", "filaments", "total_counts", "various"]
     for i in range(len(section_lst)):
         table_xy = data.get_partial_table(x_section=section_lst[i], y_labels=False)
         y_cols = table_xy.loc[:, "y"].columns.tolist()
         for j in range(2):
-            score = func(X=table_xy.loc[:, "x"], y=table_xy.loc[:, ("y", y_cols[j])])
+            X = table_xy.loc[:, "x"]
+            y = table_xy.loc[:, ("y", y_cols[j])]
+            score = regr_model_func(X, y, regr_model)
             scores_lst.append(score)
-            # print(
-            #     f"Model: {func.__name__}\tfor section {section_lst[i]} y = {y_cols[j]}\t\tscore = {score:.3f}"
-            # )
+
     tup_scores = insert_scores_to_namedtuple(scores_lst)
     return tup_scores
 
-
-def Lasso_model(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=42,
-    )
-
-    lasso_model = linear_model.Lasso(alpha=1) #
-
-    lasso_model.fit(X_train, y_train)
-    score = lasso_model.score(X_test, y_test)
-    return score
-
-def SVR_linear(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=42,
-    )
-
-    svr_l = make_pipeline(StandardScaler(), SVR(kernel='linear')) #
-
-    svr_l.fit(X_train, y_train)
-    score = svr_l.score(X_test, y_test)
-    return score
-
-def SVR_rbf(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=42,
-    )
-
-    svr_l = make_pipeline(StandardScaler(), SVR(kernel='rbf')) #
-
-    svr_l.fit(X_train, y_train)
-    score = svr_l.score(X_test, y_test)
-    return score
-
-def ElasticNet_model(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=42,
-    )
-
-    elast_mod = ElasticNet(random_state=0)
-
-    elast_mod.fit(X_train, y_train)
-    score = elast_mod.score(X_test, y_test)
-    return score
-
-
-def get_scores_of_model(model_func=Lasso_model, print_flag=True):
+def get_scores_of_model(regr_model, model_name:str, print_flag:bool=True):
     
-    print(f'\nmodel: {model_func.__name__}')
+    print(f'\nmodel: {model_name}')
     scores_by_delay_dict = {}
     for delay in range(1,13):
         data = ML_prepare(delay=delay)
-        scores_by_delay_dict[delay] = loop_over_sections_and_y(func=model_func, data=data)
+        scores_by_delay_dict[delay] = loop_over_sections_and_y(data=data, regr_model=regr_model)
 
     if print_flag:
         for delay in scores_by_delay_dict:
@@ -150,6 +104,14 @@ def get_scores_of_model(model_func=Lasso_model, print_flag=True):
             print(f'max score for delay {delay}\t {max_score:.2f}, for {name[0]}')
     
     return scores_by_delay_dict
+
+def regr_model_func(X, y, reg_model):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42,
+    )
+    reg_model.fit(X_train, y_train)
+    score = reg_model.score(X_test, y_test)
+    return score
     
 
 if __name__ == "__main__":
@@ -157,10 +119,28 @@ if __name__ == "__main__":
     create_section_and_PCA(data, labled=True)
     create_section_and_PCA(data, labled=False)
 
-    scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
-    scores_by_delay_dict_ElastNet = get_scores_of_model(model_func=ElasticNet_model)
-    scores_by_delay_dict_SVR_lin = get_scores_of_model(model_func=SVR_linear)
-    scores_by_delay_dict_SVR_rbf = get_scores_of_model(model_func=SVR_rbf)
+    # scores_by_delay_dict_Lasso = get_scores_of_model(model_func=Lasso_model)
+    # scores_by_delay_dict_ElastNet = get_scores_of_model(model_func=ElasticNet_model)
+    # scores_by_delay_dict_SVR_lin = get_scores_of_model(model_func=SVR_linear)
+    # scores_by_delay_dict_SVR_rbf = get_scores_of_model(model_func=SVR_rbf)
+
+    las = linear_model.Lasso(alpha=1)
+    elast = ElasticNet(random_state=0)
+    ridge = Ridge(alpha=1.0)
+    svr_rbf = make_pipeline(StandardScaler(), SVR(kernel='rbf'))
+    svr_lin = make_pipeline(StandardScaler(), SVR(kernel='linear'))
+
+    models_dict = {las:'Lasso', elast:'ElasticNet', ridge:'Ridge Regression', svr_lin:'SVR (lin)', svr_rbf:'SVR (rbf)'}
+
+    scores_models_dict = {}
+    for model in models_dict:
+        model_name = models_dict[model]
+        res = get_scores_of_model(model, model_name)
+        scores_models_dict[model_name] = res
+
+
+
+
 
 
 
