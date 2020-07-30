@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Guy_additions
 .vscode/settings.json
+clean_tables
 
 # C extensions
 *.so
