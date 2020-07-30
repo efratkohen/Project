@@ -34,6 +34,7 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
         table_xy = data.get_partial_table(x_section=section_lst[i], y_labels=labled)
         y_cols = table_xy.loc[:, "y"].columns.tolist()
         for j in range(2):
+            ### model on y = y_cols[j]
             pca_plot(
                 table_xy, color_col=y_cols[j], section=section_lst[i], ax_i=ax[i, j]
             )
@@ -48,10 +49,25 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     plt.show()
 
 
-def Lasso_model_plot(X_train, X_test, y_train, y_test):
-    lasso_model = linear_model.Lasso(alpha=1)
-
-    lasso_model.fit(x_train, y_train)
+def Lasso_model_scores(data: ML_prepare):
+    """
+    """
+    section_lst = ["all", "filaments", "total_counts", "various"]
+    for i in range(len(section_lst)):
+        table_xy = data.get_partial_table(x_section=section_lst[i], y_labels=False)
+        y_cols = table_xy.loc[:, "y"].columns.tolist()
+        for j in range(2):
+            ### model on y = y_cols[j]
+            X_train, X_test, y_train, y_test = train_test_split(
+                table_xy.loc[:, "x"],
+                table_xy.loc[:, ("y", y_cols[j])],
+                test_size=0.25,
+                random_state=42,
+            )
+            lasso_model = linear_model.Lasso(alpha=1)
+            lasso_model.fit(X_train, y_train)
+            score = lasso_model.score(X_test, y_test)
+            print(f'for section {section_lst[i]} y = {y_cols[j]}, score = {score:.3f}')
 
 
 if __name__ == "__main__":
@@ -59,23 +75,28 @@ if __name__ == "__main__":
     data = ML_prepare(delay=delay)
     create_section_and_PCA(data)
 
-    t_all = data.get_partial_table(x_section="all")
-    t_filaments = data.get_partial_table(x_section="filaments")
-    t_total = data.get_partial_table(x_section="total_counts")
-    t_various = data.get_partial_table(x_section="various")
+    Lasso_model_scores(data)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        t_filaments.loc[:, "x"],
-        t_filaments.loc[:, "y"],
-        test_size=0.25,
-        random_state=42,
-    )
+    # t_all = data.get_partial_table(x_section="all")
+    # t_filaments = data.get_partial_table(x_section="filaments")
+    # t_total = data.get_partial_table(x_section="total_counts")
+    # t_various = data.get_partial_table(x_section="various")
 
-    #######
-    lasso_model = linear_model.Lasso(alpha=1)
-    lasso_model.fit(X_train, y_train)
+    #####
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     t_filaments.loc[:, "x"],
+    #     t_filaments.loc[:, ("y", "SVI")],
+    #     test_size=0.25,
+    #     random_state=42,
+    # )
 
-    
+    # lasso_model = linear_model.Lasso(alpha=1)
+    # lasso_model.fit(X_train, y_train)
+    # score = lasso_model.score(X_test, y_test)
+    # score_train = lasso_model.score(X_train, y_train)
+    # print(f"score = {score}")
 
 
+    # days = 4
+    # for section filaments y = SVI, score = 0.35173946953475366
 
