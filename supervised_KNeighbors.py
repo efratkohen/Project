@@ -9,6 +9,30 @@ from sklearn.model_selection import train_test_split
 
 
 def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
+    """
+    plot figures of score results
+    x axis - delay
+    y axis - score
+
+    Parameters
+    ----------
+    k_max: int
+        max value to check
+    X_train: pd.DataFrame
+        X data to train the model
+    y_train: pd.Series
+        y labels to train the model
+    X_test: pd.DataFrame
+        X data to test the model
+    y_test: pd.Series
+        y label to test the model
+    
+    return
+    ----------
+    df : pd.DataFrame
+        DataFrame with k_range and scores_k
+    """
+    
     k_range = range(1,k_max)
     scores_k = []
     for k in k_range:
@@ -20,7 +44,22 @@ def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame
 
 
 def score_by_label (y_test, y_predict):
-    """return score of prediction by label type"""
+    """
+    calculate score of prediction by label type: bas, reasonable and good
+
+    Parameters
+    ----------
+    y_test : pd.DataFrame
+        y value to predict
+    y_predict : list
+        y value predicted
+    
+
+    return
+    ----------
+    score_list : list
+        score list of score predictions for labels bad, reasonable and good
+    """
     df = pd.DataFrame(list(zip(list(y_test), y_predict)), 
                columns =['y_test', 'y_predict'])
     label_lst = ["bad", "reasonable", "good"]
@@ -32,7 +71,24 @@ def score_by_label (y_test, y_predict):
 
 
 def choose_k_value(section: str, label: str, delay: int):
-    """plot graph for KNeighborsClassifier and the user choose the k value by the result"""
+    """
+    plot graph of scores_k by k_range for KNeighbors model.
+    The user need to choose the k value by the result.
+
+    Parameters
+    ----------
+    section : str
+        microorganisms section - should be: all or total_counts or filaments or various
+    label : str
+        label - should be: SV_label or SVI_label
+    delay : int
+        delay between the microscopic test which took place and the SVI test
+
+    return
+    ----------
+    k : int
+        k choosen by the user
+    """
     data = ML_prepare(delay)
     table_xy = data.get_partial_table(x_section=section,y_labels=True)
     X = table_xy.loc[:,'x']
@@ -42,7 +98,7 @@ def choose_k_value(section: str, label: str, delay: int):
     sns.set()
     sns.stripplot(data=scores_data, x='k', y='score', size=10)
     plt.ylim(0, 1)
-    print("please look at the graph and choose k value. press any key to continue")
+    print("please look at the graph and choose k value. press enter to continue")
     input()
     plt.show()
     print("please insert k value")
@@ -51,7 +107,27 @@ def choose_k_value(section: str, label: str, delay: int):
 
 
 def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> list:
-    score_delay = [] 
+    """
+    create KNeighbors score list of all the prediction by label type, section of microorganism and delay
+
+    Parameters
+    ----------
+    labels : list
+        list of labels: SV and SVI
+    sections : list
+        list of microorganisms sections: all, total_counts, filaments and various
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+    K : int
+        k value for KNeighbors model
+
+    return
+    ----------
+    score_delay : list
+        score list of score predictions for each combination of label, section and delay
+    """
+
+    score_delay = []
     for label in labels:
         for section in sections:
             for delay in delay_lst:
@@ -67,31 +143,74 @@ def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> 
                 score = knn.score(X_test, y_test)
                 score_label.append(score)
                 score_delay.append(score_label)
-                # print(f"result for delay= {delay}, section= {section}, label={label} : score_bad={score_label[0]}, score_reasonable={score_label[1]}, score_good={score_label[2]}, score={score_label[3]}")
     return score_delay
 
 def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, score_lst_name: list ) -> pd.DataFrame:
+    """
+    create multi index pd.DataFrame of all score results in shape of (6,36)
+    6 rows of delay
+    36 columns by 2 label types, 4 sections and 4 score results type
+
+    Parameters
+    ----------
+    score_lst : list
+        list of all scores
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+    sections : list
+        list of microorganisms section: all, total_counts, filaments and various
+    labels : list
+        list of labels: SV and SVI
+    score_lst_name : list
+        list of score types: bad_s, reasonable_s, good_s and model score
+
+    return
+    ----------
+    df : pd.DataFrame
+        multi index pd.DataFrame of all score results in shape of (6,36)
+    """
+    
     arr = np.array(score_lst) 
-    arr1 = np.zeros([6, 32], dtype=float)
+    arr_outlet = np.zeros([6, 32], dtype=float)
     col = 0
     for k in range(8):
         for i in range(6):
             for z in range(4):
-                arr1[i, z+k*4] = arr[col, z]
+                arr_outlet[i, z+k*4] = arr[col, z]
             col = col + 1  
     index = pd.MultiIndex.from_product([delay_lst],
                                     names=['delay'])
     columns = pd.MultiIndex.from_product([labels, sections, score_lst_name],
                                     names=['label', 'section', 'score_type'])
-    df = pd.DataFrame(arr1, index=index, columns=columns)
+    df = pd.DataFrame(arr_outlet, index=index, columns=columns)
     return df 
 
 
 def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list):
+    """
+    plot figures of score results
+    x axis - delay
+    y axis - score
+
+    Parameters
+    ----------
+    score_df : pd.DataFrame
+        multi index pd.DataFrame of all score results in shape of (6,36)
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+    sections : list
+        list of microorganisms section: all, total_counts, filaments and various
+    labels : list
+        list of labels: SV and SVI
+    score_lst_name : list
+        list of score types: bad_s, reasonable_s, good_s and model score
+    """
+    
     for label in labels:
         for section in sections:
             data = score_df.loc[:,(label,section)]
             colors = ['r', 'g', 'b', 'y']
+            axs = ['ax1', 'ax2', 'ax3', 'ax4']
             fig, ax = plt.subplots(1,1)
             for i in range(4):
                 plt.scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
@@ -99,7 +218,8 @@ def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: l
             plt.xlabel('delay')
             plt.ylabel('score')
             plt.legend(loc='lower right')
-            plt.savefig(f"KNeighbors_plot/{label}_{section}.png")
+            plt.title(f'scores of KNeighbors prediction for {label} with {section}')
+            plt.savefig(f"KNeighbors_plot/KNeighbors_{label}_{section}.png")
 
 
 if __name__ == "__main__":
@@ -107,12 +227,9 @@ if __name__ == "__main__":
     sections = ['all','total_counts', 'filaments', 'various']
     labels = ['SV_label', 'SVI_label']
     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
-    # k = choose_k_value('filaments', 'SVI_label', 12)
-    k = 9 # erase 
+    k = choose_k_value('filaments', 'SVI_label', 6)
+    # k = 9 # erase 
     score_lst = create_score_list(labels, sections, delay_lst, k)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
     save_plot(score_df, delay_lst, sections, labels, score_lst_name)
     
-
-    # x[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\x_0.xlsx", index=True, header=True)
-    # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)

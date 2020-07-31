@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 
 def score_by_label (y_test, y_predict):
     """
-    return score of prediction by label type
+    calculate score of prediction by label type: bas, reasonable and good
 
     Parameters
     ----------
@@ -21,7 +21,7 @@ def score_by_label (y_test, y_predict):
         y value predicted
     
 
-    Attributes
+    return
     ----------
     score_list : list
         score list of score predictions for labels bad, reasonable and good
@@ -38,6 +38,24 @@ def score_by_label (y_test, y_predict):
 
 
 def create_score_list(labels: list, sections: list, delay_lst: list) -> list:
+    """
+    create LinearSVC score list of all the prediction by label type, section of microorganism and delay
+
+    Parameters
+    ----------
+    labels : list
+        list of labels: SV and SVI
+    sections : list
+        list of microorganisms section: all, total_counts, filaments and various
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+
+    return
+    ----------
+    score_delay : list
+        score list of score predictions for each combination of label, section and delay
+    """
+    
     score_delay = [] 
     for label in labels:
         for section in sections:
@@ -59,31 +77,79 @@ def create_score_list(labels: list, sections: list, delay_lst: list) -> list:
     return score_delay
 
 def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, score_lst_name: list ) -> pd.DataFrame:
+    """
+    create multi index pd.DataFrame of all score results in shape of (6,36)
+    6 rows of delay
+    36 columns by 2 label types, 4 sections and 4 score results type
+
+    Parameters
+    ----------
+    score_lst : list
+        list of all scores
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+    sections : list
+        list of microorganisms section: all, total_counts, filaments and various
+    labels : list
+        list of labels: SV and SVI
+    score_lst_name : list
+        list of score types: bad_s, reasonable_s, good_s and model score
+
+    return
+    ----------
+    df : pd.DataFrame
+        multi index pd.DataFrame of all score results in shape of (6,36)
+    """
+    
     arr = np.array(score_lst) 
-    arr1 = np.zeros([6, 32], dtype=float)
+    arr_outlet = np.zeros([6, 32], dtype=float)
     col = 0
     for k in range(8):
         for i in range(6):
             for z in range(4):
-                arr1[i, z+k*4] = arr[col, z]
+                arr_outlet[i, z+k*4] = arr[col, z]
             col = col + 1  
     index = pd.MultiIndex.from_product([delay_lst],
                                     names=['delay'])
     columns = pd.MultiIndex.from_product([labels, sections, score_lst_name],
                                     names=['label', 'section', 'score_type'])
-    df = pd.DataFrame(arr1, index=index, columns=columns)
+    df = pd.DataFrame(arr_outlet, index=index, columns=columns)
     return df 
 
 
-# def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list, delay_lst: list):
-#     sns.set()
-#     for label in labels:
-#         for section in sections:
-#             for score_type in score_lst_name:
-#                 sns.stripplot(data=score_df[label, section, score_type], x='delay', y='{label}, {section}, {score_type}', size=10)
-#                 score_df.plot(kind='scatter',x='delay',y=[label, section, score_type])
-#                 plt.ylim(0, 1)
-                # plt.savefig(f"KNeighbors_plot/{label}_{section}_{score_type}.png")
+def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list):
+    """
+    plot figures of score results
+    x axis - delay
+    y axis - score
+
+    Parameters
+    ----------
+    score_df : pd.DataFrame
+        multi index pd.DataFrame of all score results in shape of (6,36)
+    delay_lst : list
+        list of delays between the microscopic test which took place and the SVI test
+    sections : list
+        list of microorganisms section: all, total_counts, filaments and various
+    labels : list
+        list of labels: SV and SVI
+    score_lst_name : list
+        list of score types: bad_s, reasonable_s, good_s and model score
+    """
+    
+    for label in labels:
+        for section in sections:
+            data = score_df.loc[:,(label,section)]
+            colors = ['r', 'g', 'b', 'y']
+            fig, ax = plt.subplots(1,1)
+            for i in range(4):
+                plt.scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
+            plt.ylim(0, 1)
+            plt.xlabel('delay')
+            plt.ylabel('score')
+            plt.legend(loc='lower right')
+            plt.title(f'scores of LinearSVC prediction for {label} with {section}')
+            plt.savefig(f"KNeighbors_plot/LinearSVC_{label}_{section}.png")
 
 
 if __name__ == "__main__":
@@ -93,8 +159,7 @@ if __name__ == "__main__":
     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
     score_lst = create_score_list(labels, sections, delay_lst)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
-    #print(score_df)
+    save_plot(score_df, delay_lst, sections, labels, score_lst_name)
     
 
-    score_df.to_excel(r"E:\python\Microorganism_Effects_Analysis\SVC_rendom_state_0_max_iter_100000.xlsx", index=True, header=True)
-    # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)
+ 
