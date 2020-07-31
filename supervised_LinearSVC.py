@@ -10,7 +10,23 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 def score_by_label (y_test, y_predict):
-    """return score of prediction by label type"""
+    """
+    return score of prediction by label type
+
+    Parameters
+    ----------
+    y_test : pd.DataFrame
+        y value to predict
+    y_predict : list
+        y value predicted
+    
+
+    Attributes
+    ----------
+    score_list : list
+        score list of score predictions for labels bad, reasonable and good
+    """
+    
     df = pd.DataFrame(list(zip(list(y_test), y_predict)), 
                columns =['y_test', 'y_predict'])
     label_lst = ["bad", "reasonable", "good"]
@@ -32,7 +48,7 @@ def create_score_list(labels: list, sections: list, delay_lst: list) -> list:
                 y = table_xy['y', label]
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
                 clf = make_pipeline(StandardScaler(),
-                     LinearSVC(random_state=42, tol=1e-5))
+                     LinearSVC(random_state=0, tol=1e-5, max_iter=100000))
                 clf.fit(X_train, y_train)
                 y_predict=(clf.predict(X_test))
                 score_label = score_by_label(y_test, y_predict)
@@ -80,5 +96,5 @@ if __name__ == "__main__":
     #print(score_df)
     
 
-    score_df.to_excel(r"E:\python\Microorganism_Effects_Analysis\SVC_rendom_state_42.xlsx", index=True, header=True)
+    score_df.to_excel(r"E:\python\Microorganism_Effects_Analysis\SVC_rendom_state_0_max_iter_100000.xlsx", index=True, header=True)
     # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)
