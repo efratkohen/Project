@@ -96,7 +96,9 @@ def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, s
 #                 score_df.plot(kind='scatter',x='delay',y=[label, section, score_type])
 #                 plt.ylim(0, 1)
                 # plt.savefig(f"KNeighbors_plot/{label}_{section}_{score_type}.png")
-
+    data = score_df[label, section, score_type]
+    x : data.index.levels[0]
+    y : data
 
 if __name__ == "__main__":
     delay_lst = [*range(0, 18, 3)]
