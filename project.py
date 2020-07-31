@@ -44,10 +44,10 @@ def convert_dates_to_date_object(data: pd.DataFrame):
         data.iloc[i, 0] = convert_str_to_date(data.iloc[i, 0])
 
 
-def check_svi_values(data: pd.DataFrame) -> pd.DataFrame:
+def check_svi_values_range(svi_data: pd.DataFrame) -> pd.DataFrame:
     """check and replace incorrect values with nan"""
 
-    data.replace(0, np.nan, inplace=True)
+    svi_data.replace(0, np.nan, inplace=True)
     ranges_lst = [(0, 6), (0, 1000), (500, 4000)]
     col_names_lst = ["SV", "volume", "mlss"]
 
@@ -55,11 +55,11 @@ def check_svi_values(data: pd.DataFrame) -> pd.DataFrame:
         name = col_names_lst[i]
         low = ranges_lst[i][0]
         high = ranges_lst[i][1]
-        data.loc[:, data.columns.str.contains(name)] = data.loc[
+        svi_data.loc[:, svi_data.columns.str.contains(name)] = svi_data.loc[
             :, data.columns.str.contains(name)
-        ].apply(lambda x: [y if low < y < high else np.nan for y in x])
+        ].apply(lambda x: [value if low < value < high else np.nan for value in x])
 
-    return data
+    return svi_data
 
 
 def split_svi_to_reactor(data_svi: pd.DataFrame):
