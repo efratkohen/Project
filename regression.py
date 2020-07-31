@@ -125,7 +125,7 @@ def loop_over_sections_and_y(data: ML_prepare, regr_model):
         for j in range(2):
             X = table_xy.loc[:, "x"]
             y = table_xy.loc[:, ("y", y_cols[j])]
-            score = regr_model_func(X, y, regr_model)
+            score, _ = regr_model_func(X, y, regr_model)
             scores_lst.append(score)
 
     tup_scores = insert_scores_to_namedtuple(scores_lst)
@@ -138,7 +138,7 @@ def regr_model_func(X, y, reg_model):
     )
     reg_model.fit(X_train, y_train)
     score = reg_model.score(X_test, y_test)
-    return score
+    return score, reg_model
 
 
 
@@ -268,15 +268,42 @@ def create_models_dict():
     }
     return models_dict
 
-def run_models_on_filaments_svi_3days(models_dict:dict):
-    data2 = ML_prepare(delay=3)
-    filaments_table = data2.get_partial_table(x_section="filaments", y_labels=False)
+def get_day3_filaments_svi_data():
+    data = ML_prepare(delay=3)
+    filaments_table = data.get_partial_table(x_section="filaments", y_labels=False)
     filaments_x = filaments_table.loc[:, "x"]
     filaments_svi = filaments_table.loc[:, ("y", "SVI")]
+    return filaments_x, filaments_svi
+
+
+def run_models_on_filaments_svi_3days(models_dict:dict):
+    filaments_x, filaments_svi = get_day3_filaments_svi_data()
 
     run_models_on_same_data_and_plot(
         models_dict, filaments_x, filaments_svi, "filaments"
     )
+
+def display_weights_of_winning_model(winning_model):
+
+    fil_X, fil_svi = get_day3_filaments_svi_data()
+    score, fitted_model = regr_model_func(fil_X, fil_svi, winning_model)
+    weights_dict = {'organism':list(fil_X.columns),'weight':list(fitted_model.coef_)}
+    df_weights = pd.DataFrame(data=weights_dict)
+
+    fig3 = plt.figure()
+    fig3.suptitle(
+        f"Coefficients, Lasso regression model (3 days delay)", fontsize=20, y=1.05
+    )
+
+    sns.set()
+    g = sns.stripplot(data=df_weights, x='organism', y='weight', size=10)
+
+    g.set_xlabel('Organism', fontsize=20)
+    g.set_ylabel('weight in model', fontsize=20)
+
+    plt.xticks(rotation=90)
+
+    return df_weights
 
 
 if __name__ == "__main__":
@@ -285,7 +312,7 @@ if __name__ == "__main__":
     create_section_and_PCA(data, labled=True)
     create_section_and_PCA(data, labled=False)
 
-    #### Run all models on all delays, all sections 
+    #### Run all models on all delays, all sections
     models_dict = create_models_dict()
     delay_range = range(1,13)
 
@@ -295,10 +322,17 @@ if __name__ == "__main__":
     days_df_dict = create_list_of_tidy_df_by_day(scores_models_dict, delay_range)
 
     # plot them by days
-    days_swarmplot(days_df_dict)
+    # days_swarmplot(days_df_dict)
 
-    ###### best looks SVI for filaments, after 3 days:
+    #### Look on SVI-filaments regression (3 days delay):
     run_models_on_filaments_svi_3days(models_dict)
+
+    #### Display and save best regression model (Lasso):
+    winning_model = list(models_dict.keys())[0]
+    df_weights = display_weights_of_winning_model(winning_model)
+    df_weights.to_csv('model_coefs.csv', index=False)
+    
+
     
 
 
