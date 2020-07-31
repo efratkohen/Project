@@ -114,3 +114,16 @@ if __name__ == "__main__":
 
     # x[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\x_0.xlsx", index=True, header=True)
     # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)
+
+    my_data = score_df.loc[:,('SV_label','all')]
+    
+    fig, ax = plt.subplots(1,1)
+    colors = ['r','g','b']
+    cols = ['bad_s', 'reasonable_s', 'good_s']
+    for i in range(3):
+        plt.scatter(my_data.index.levels[0], y=my_data.loc[:,cols[i]], color=colors[i])
+    plt.xlabel('something')
+    
+
+
+    my_data.plot(kind='scatter', x=my_data.index.levels[0], y='bad_s', color='r')
