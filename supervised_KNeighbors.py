@@ -89,6 +89,10 @@ def choose_k_value(section: str, label: str, delay: int):
     k : int
         k choosen by the user
     """
+    if section != 'all' or 'total_counts' or 'filaments' or 'various':
+        raise ValueError("Please supply a valid section value: 'all','total_counts', 'filaments', 'various' ")
+    if label != 'SV_label' or 'SVI_label':
+        raise ValueError("Please supply a valid label value: 'SV_label', 'SVI_label' ")
     data = ML_prepare(delay)
     table_xy = data.get_partial_table(x_section=section,y_labels=True)
     X = table_xy.loc[:,'x']
