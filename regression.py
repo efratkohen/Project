@@ -15,28 +15,6 @@ from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-
-def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
-    '''
-    '''
-    x_only = table_xy.loc[:, "x"]
-
-    pca_model = make_pipeline(StandardScaler(), PCA(n_components=2))
-    pca_model.fit(x_only)
-
-    X_2D = pca_model.transform(x_only)
-    pca_dict = dict(PCA1=X_2D[:, 0], PCA2=X_2D[:, 1])
-    pca_results = pd.DataFrame(pca_dict)
-
-    color_series = table_xy.loc[:, ("y", color_col)].reset_index(drop=True)
-
-    pca_results["color"] = color_series
-
-    g = sns.scatterplot(data=pca_results, x="PCA1", y="PCA2", hue="color", ax=ax_i)
-    g.legend_.remove()
-    g.set(title=f"{section} colored by {color_col}")
-
-
 def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     '''
     '''
@@ -67,22 +45,42 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     plt.show()
 
 
-def insert_scores_to_namedtuple(scores_lst: list):
-    Tup_scores = namedtuple(
-        "Tup_scores",
-        [
-            "all_sv",
-            "all_svi",
-            "filaments_sv",
-            "filaments_svi",
-            "total_counts_sv",
-            "total_counts_svi",
-            "various_sv",
-            "various_svi",
-        ],
-    )
-    tup_scores = Tup_scores(*scores_lst)
-    return tup_scores
+def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
+    '''
+    '''
+    x_only = table_xy.loc[:, "x"]
+
+    pca_model = make_pipeline(StandardScaler(), PCA(n_components=2))
+    pca_model.fit(x_only)
+
+    X_2D = pca_model.transform(x_only)
+    pca_dict = dict(PCA1=X_2D[:, 0], PCA2=X_2D[:, 1])
+    pca_results = pd.DataFrame(pca_dict)
+
+    color_series = table_xy.loc[:, ("y", color_col)].reset_index(drop=True)
+
+    pca_results["color"] = color_series
+
+    g = sns.scatterplot(data=pca_results, x="PCA1", y="PCA2", hue="color", ax=ax_i)
+    g.legend_.remove()
+    g.set(title=f"{section} colored by {color_col}")
+
+
+def create_models_dict():
+    las = linear_model.Lasso(alpha=1)
+    elast = ElasticNet(random_state=0)
+    ridge = Ridge(alpha=1.0)
+    svr_rbf = make_pipeline(StandardScaler(), SVR(kernel="rbf"))
+    svr_lin = make_pipeline(StandardScaler(), SVR(kernel="linear"))
+
+    models_dict = {
+        las: "Lasso",
+        elast: "ElasticNet",
+        ridge: "Ridge Regression",
+        svr_lin: "SVR (lin)",
+        svr_rbf: "SVR (rbf)",
+    }
+    return models_dict
 
 
 def get_scores_of_all_models(
@@ -147,6 +145,24 @@ def regr_model_func(X, y, reg_model):
     reg_model.fit(X_train, y_train)
     score = reg_model.score(X_test, y_test)
     return score, reg_model
+
+
+def insert_scores_to_namedtuple(scores_lst: list):
+    Tup_scores = namedtuple(
+        "Tup_scores",
+        [
+            "all_sv",
+            "all_svi",
+            "filaments_sv",
+            "filaments_svi",
+            "total_counts_sv",
+            "total_counts_svi",
+            "various_sv",
+            "various_svi",
+        ],
+    )
+    tup_scores = Tup_scores(*scores_lst)
+    return tup_scores
 
 
 def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
@@ -266,27 +282,9 @@ def swarmplot_of_day(df_day: pd.DataFrame, day_num: int, ax_i):
         dodge=True,
         ax=ax_i,
     )
-
     ax_i.set_title(f"delay: {day_num} days", fontsize=16)
     ax_i.set_xlabel("")
     ax_i.set_ylabel("")
-
-
-def create_models_dict():
-    las = linear_model.Lasso(alpha=1)
-    elast = ElasticNet(random_state=0)
-    ridge = Ridge(alpha=1.0)
-    svr_rbf = make_pipeline(StandardScaler(), SVR(kernel="rbf"))
-    svr_lin = make_pipeline(StandardScaler(), SVR(kernel="linear"))
-
-    models_dict = {
-        las: "Lasso",
-        elast: "ElasticNet",
-        ridge: "Ridge Regression",
-        svr_lin: "SVR (lin)",
-        svr_rbf: "SVR (rbf)",
-    }
-    return models_dict
 
 
 def get_day3_filaments_svi_data():
@@ -299,7 +297,6 @@ def get_day3_filaments_svi_data():
 
 def run_models_on_filaments_svi_3days(models_dict: dict):
     filaments_x, filaments_svi = get_day3_filaments_svi_data()
-
     run_models_on_same_data_and_plot(
         models_dict, filaments_x, filaments_svi, "filaments"
     )
@@ -316,15 +313,11 @@ def display_weights_of_winning_model(winning_model):
     fig3.suptitle(
         f"Coefficients, Lasso regression model (3 days delay)", fontsize=20, y=1.00
     )
-
     sns.set()
     g = sns.stripplot(data=df_weights, x="organism", y="weight", size=10)
-
     g.set_xlabel("Organism", fontsize=20)
     g.set_ylabel("weight in model", fontsize=20)
-
     plt.xticks(rotation=90)
-    # plt.tight_layout()
     fig3.savefig("figures/Last_model_coefs.png", dpi=150, bbox_inches="tight")
     plt.show()
 
