@@ -159,7 +159,7 @@ def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
     fig1.text(0.5, 0.0, "Real values", ha="center", va="center", fontsize=14)
     fig1.text(0.0, 0.5, "Predicted", ha="center", va="center", fontsize=14, rotation=90)
     plt.tight_layout()
-    plt.savefig("SVI_filaments_regression.png", dpi=150, bbox_inches="tight")
+    fig1.savefig("SVI_filaments_regression.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -237,6 +237,7 @@ def days_swarmplot(days_df_dict):
     
     
     plt.tight_layout()
+    fig2.savefig("Swarm_plot_by_day.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
