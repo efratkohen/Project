@@ -55,6 +55,12 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
         y=1.02,
     )
     plt.tight_layout()
+    fig_name = "PCA_by_groups"
+    if labled:
+        fig_name = fig_name + "_labled"
+
+    plt.tight_layout()
+    fig.savefig("figures/" + fig_name + ".png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -76,13 +82,9 @@ def insert_scores_to_namedtuple(scores_lst: list):
     return tup_scores
 
 
-
-
-
-
-
-
-def get_scores_of_all_models(models_dict: dict, delay_range=range(1,13), print_flag: bool = True):
+def get_scores_of_all_models(
+    models_dict: dict, delay_range=range(1, 13), print_flag: bool = True
+):
     """
     """
     scores_models_dict = {}
@@ -93,7 +95,9 @@ def get_scores_of_all_models(models_dict: dict, delay_range=range(1,13), print_f
     return scores_models_dict
 
 
-def get_scores_of_model(regr_model, model_name: str, delay_range, print_flag: bool = True):
+def get_scores_of_model(
+    regr_model, model_name: str, delay_range, print_flag: bool = True
+):
 
     scores_by_delay_dict = {}
     for delay in delay_range:
@@ -115,6 +119,7 @@ def get_scores_of_model(regr_model, model_name: str, delay_range, print_flag: bo
             print(f"max score for delay {delay}\t {max_score:.2f}, for {name[0]}")
 
     return scores_by_delay_dict
+
 
 def loop_over_sections_and_y(data: ML_prepare, regr_model):
     scores_lst = []
@@ -141,7 +146,6 @@ def regr_model_func(X, y, reg_model):
     return score, reg_model
 
 
-
 def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
     fig1, ax1 = plt.subplots(1, 5, figsize=(18, 4), sharey=True)
     plt.xlim((65, 210))
@@ -159,7 +163,7 @@ def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
     fig1.text(0.5, 0.0, "Real values", ha="center", va="center", fontsize=14)
     fig1.text(0.0, 0.5, "Predicted", ha="center", va="center", fontsize=14, rotation=90)
     plt.tight_layout()
-    fig1.savefig("SVI_filaments_regression.png", dpi=150, bbox_inches="tight")
+    fig1.savefig("figures/SVI_filaments_regression.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -195,61 +199,74 @@ def reg_plot(x_axis, y_axis, model_name, score, ax_i):
     ax_i.set_title(f"{model_name}", fontsize=16)
     ax_i.set_xlabel("")
 
+
 def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range):
-    '''
+    """
     Each subplot is a delay. In each there is all the results of a given section for all 5 models.
-    '''
+    """
     days_df_dict = {}
-    categories = scores_models_dict['Lasso'][3]._fields
+    categories = scores_models_dict["Lasso"][3]._fields
 
     for day in delay_range:
-        df_day = pd.DataFrame(columns=['score','section','sv_svi','model'])
+        df_day = pd.DataFrame(columns=["score", "section", "sv_svi", "model"])
         for model in scores_models_dict:
             model_tup_res = scores_models_dict[model][day]
             df_model = pd.DataFrame()
-            df_model['score'] = model_tup_res
-            df_model['section']=['all','all','filaments','filaments','total_counts','total_counts','various','various']
-            df_model['sv_svi'] = 4*['sv','svi']
-            df_model['model'] = 8*[model]
+            df_model["score"] = model_tup_res
+            df_model["section"] = [
+                "all",
+                "all",
+                "filaments",
+                "filaments",
+                "total_counts",
+                "total_counts",
+                "various",
+                "various",
+            ]
+            df_model["sv_svi"] = 4 * ["sv", "svi"]
+            df_model["model"] = 8 * [model]
             df_day = pd.concat([df_day, df_model], ignore_index=True)
 
         days_df_dict[day] = df_day
-    
+
     return days_df_dict
 
+
 def days_swarmplot(days_df_dict):
-    days_range = range(2,8)
+    days_range = range(2, 8)
     fig2, ax2 = plt.subplots(2, 3, figsize=(12, 8), sharey=True)
-    plt.ylim((-0.3,0.6))
-    fig2.suptitle(
-        f"Score for all sections and models by day", fontsize=20, y=1.05
-    )
+    plt.ylim((-0.3, 0.6))
+    fig2.suptitle(f"Score for all models, all sections, by day", fontsize=20, y=1.05)
     fig2.text(0.5, 0.0, "Section", ha="center", va="center", fontsize=20)
     fig2.text(0.0, 0.5, "Score", ha="center", va="center", fontsize=20, rotation=90)
-    
 
     ax_count = 0
     for day_num in days_range:
-        ax_row = (ax_count)//3
-        ax_col = (ax_count)%3
+        ax_row = (ax_count) // 3
+        ax_col = (ax_count) % 3
         swarmplot_of_day(days_df_dict[day_num], day_num, ax_i=ax2[ax_row, ax_col])
         ax_count += 1
-    
-    
+
     plt.tight_layout()
-    fig2.savefig("Swarm_plot_by_day.png", dpi=150, bbox_inches="tight")
+    fig2.savefig("figures/Swarm_plot_by_day.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
-def swarmplot_of_day(df_day:pd.DataFrame, day_num:int, ax_i):
+def swarmplot_of_day(df_day: pd.DataFrame, day_num: int, ax_i):
     sns.set()
-    sns.swarmplot(x="section", y="score", hue="sv_svi",
-                   data=df_day, palette="Set2", dodge=True, ax=ax_i)
+    sns.swarmplot(
+        x="section",
+        y="score",
+        hue="sv_svi",
+        data=df_day,
+        palette="Set2",
+        dodge=True,
+        ax=ax_i,
+    )
 
     ax_i.set_title(f"delay: {day_num} days", fontsize=16)
     ax_i.set_xlabel("")
     ax_i.set_ylabel("")
-
 
 
 def create_models_dict():
@@ -268,6 +285,7 @@ def create_models_dict():
     }
     return models_dict
 
+
 def get_day3_filaments_svi_data():
     data = ML_prepare(delay=3)
     filaments_table = data.get_partial_table(x_section="filaments", y_labels=False)
@@ -276,101 +294,63 @@ def get_day3_filaments_svi_data():
     return filaments_x, filaments_svi
 
 
-def run_models_on_filaments_svi_3days(models_dict:dict):
+def run_models_on_filaments_svi_3days(models_dict: dict):
     filaments_x, filaments_svi = get_day3_filaments_svi_data()
 
     run_models_on_same_data_and_plot(
         models_dict, filaments_x, filaments_svi, "filaments"
     )
 
+
 def display_weights_of_winning_model(winning_model):
 
     fil_X, fil_svi = get_day3_filaments_svi_data()
     score, fitted_model = regr_model_func(fil_X, fil_svi, winning_model)
-    weights_dict = {'organism':list(fil_X.columns),'weight':list(fitted_model.coef_)}
+    weights_dict = {"organism": list(fil_X.columns), "weight": list(fitted_model.coef_)}
     df_weights = pd.DataFrame(data=weights_dict)
 
     fig3 = plt.figure()
     fig3.suptitle(
-        f"Coefficients, Lasso regression model (3 days delay)", fontsize=20, y=1.05
+        f"Coefficients, Lasso regression model (3 days delay)", fontsize=20, y=1.00
     )
 
     sns.set()
-    g = sns.stripplot(data=df_weights, x='organism', y='weight', size=10)
+    g = sns.stripplot(data=df_weights, x="organism", y="weight", size=10)
 
-    g.set_xlabel('Organism', fontsize=20)
-    g.set_ylabel('weight in model', fontsize=20)
+    g.set_xlabel("Organism", fontsize=20)
+    g.set_ylabel("weight in model", fontsize=20)
 
     plt.xticks(rotation=90)
+    # plt.tight_layout()
+    fig3.savefig("figures/Last_model_coefs.png", dpi=150, bbox_inches="tight")
+    plt.show()
 
     return df_weights
 
 
 if __name__ == "__main__":
+    # PCA for first glance, using 4 days delay
     data = ML_prepare(delay=4)
-    #### PCA
     create_section_and_PCA(data, labled=True)
     create_section_and_PCA(data, labled=False)
 
-    #### Run all models on all delays, all sections
+    # Create models and desired delay range
     models_dict = create_models_dict()
-    delay_range = range(1,13)
+    delay_range = range(1, 13)
 
-    # get scores for all models for all sections:
-    scores_models_dict = get_scores_of_all_models(models_dict, delay_range= delay_range, print_flag=False)
-    # turn to list of long dfs
+    # get scores for all models for all sections, and plot them by days
+    scores_models_dict = get_scores_of_all_models(
+        models_dict, delay_range=delay_range, print_flag=False
+    )
     days_df_dict = create_list_of_tidy_df_by_day(scores_models_dict, delay_range)
+    days_swarmplot(days_df_dict)
 
-    # plot them by days
-    # days_swarmplot(days_df_dict)
-
-    #### Look on SVI-filaments regression (3 days delay):
+    # Looking deeper into most promising results: SVI-filaments regression (3 days delay)
     run_models_on_filaments_svi_3days(models_dict)
 
-    #### Display and save best regression model (Lasso):
+    # Display and save best regression model (Lasso):
     winning_model = list(models_dict.keys())[0]
-    df_weights = display_weights_of_winning_model(winning_model)
-    df_weights.to_csv('model_coefs.csv', index=False)
-    
+    df_coefs = display_weights_of_winning_model(winning_model)
+    df_coefs.to_csv("model_coefs.csv", index=False)
 
-    
-
-
-
-    
-
-
-
-
-
-
-
-    ###### for me later
-    # X_train, X_test, y_train, y_test = train_test_split(
-    #     filaments_x, filaments_svi, test_size=0.25, random_state=42,
-    # )
-    # ridge.fit(X_train, y_train)
-    # y_predicted = ridge.predict(filaments_x)
-
-    # mse = np.mean((ridge.predict(X_test) - y_test)**2)
-
-
-    # delay_range = range(2,8)
-    # days_df_dict = {}
-    # categories = scores_models_dict['Lasso'][3]._fields
-
-    # day = 3
-    # df_day = pd.DataFrame(columns=['score','section','sv_svi','model']) # remove
-    # # df_day = pd.DataFrame(index=list(categories))
-    # for model in scores_models_dict:
-    #     model_tup_res = scores_models_dict[model][day]
-    #     df_model = pd.DataFrame()
-    #     df_model['score'] = model_tup_res
-    #     df_model['section']=['all','all','filaments','filaments','total_counts','total_counts','various','various']
-    #     df_model['sv_svi'] = 4*['sv','svi']
-    #     df_model['model'] = 8*[model]
-    #     df_day = pd.concat([df_day, df_model], ignore_index=True)
-
-
-    
-    # return days_df_dict
+    print('finished analyzing')
