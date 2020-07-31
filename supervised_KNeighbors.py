@@ -219,7 +219,7 @@ def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: l
             plt.ylabel('score')
             plt.legend(loc='lower right')
             plt.title(f'scores of KNeighbors prediction for {label} with {section}')
-            plt.savefig(f"KNeighbors_plot/KNeighbors_{label}_{section}.png")
+            plt.savefig(f"figures/KNeighbors_{label}_{section}.png")
 
 
 if __name__ == "__main__":

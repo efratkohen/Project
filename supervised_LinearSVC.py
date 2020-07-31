@@ -149,7 +149,7 @@ def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: l
             plt.ylabel('score')
             plt.legend(loc='lower right')
             plt.title(f'scores of LinearSVC prediction for {label} with {section}')
-            plt.savefig(f"KNeighbors_plot/LinearSVC_{label}_{section}.png")
+            plt.savefig(f"figures/LinearSVC_{label}_{section}.png")
 
 
 if __name__ == "__main__":
