@@ -1,11 +1,10 @@
-# import project as pr #later
 import clean_data_microscope as cdm
 import clean_data_svi as cds
 import pathlib
 import pandas as pd
 import numpy as np
-from typing import Union #Tuple later
-# from datetime import datetime
+from typing import Union  # Tuple later
+
 
 def check_file(data_fname: Union[pathlib.Path, str]):
     """Check for valid file
@@ -26,18 +25,19 @@ def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
     return data
 
 
-def micro_data_read_and_split(micro_fname: str ='microscopic_data.csv'):
-    '''
+def micro_data_read_and_split(micro_fname: str = "microscopic_data.csv"):
+    """
     Reads and splits.
 
     Returns
     -------
     - micro_df_list: List of 4 dfs, each representing a bio_reactor
-    '''
+    """
     micro_path = check_file(micro_fname)
     data_microscopic = read_data(micro_path)
     micro_df_list = split_microscopic_to_reactor(data_microscopic)
     return micro_df_list
+
 
 def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     """Split the microscopic data frame to 4 dataframes for each reactor.
@@ -48,10 +48,10 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     micro_df_list: List of 4 dfs, each representing a bio_reactor
     """
     micro_df_list = []
-    for i in range(0,4):
+    for i in range(0, 4):
         # 36 columns for each reactor, starting with 1:37...
-        first_col = 1+36*i 
-        last_col = 1+36*(i+1) 
+        first_col = 1 + 36 * i
+        last_col = 1 + 36 * (i + 1)
         micro_reactor_df = data_micro.iloc[:, np.r_[0, first_col:last_col]]
         micro_reactor_df.columns = [
             "date",
@@ -97,24 +97,20 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     return micro_df_list
 
 
-
-def svi_data_read_calculate_and_split(svi_fname:str="SVI.csv"):
-    '''
+def svi_data_read_calculate_and_split(svi_fname: str = "SVI.csv"):
+    """
     Reads, computes values SVI, and splits.
 
     Returns
     -------
     - svi_df_list: List of 4 dfs, each representing a bio_reactor
-    '''
+    """
     svi_path = check_file(svi_fname)
     data_svi = read_data(svi_path)
     data_svi = cds.check_svi_values_range(data_svi)
     data_svi_computed = cds.svi_calculate(data_svi)
     svi_df_list = split_svi_to_reactor(data_svi_computed)
     return svi_df_list
-
-
-
 
 
 def split_svi_to_reactor(data_svi: pd.DataFrame):
@@ -132,23 +128,25 @@ def split_svi_to_reactor(data_svi: pd.DataFrame):
         svi_df_lst.append(reactor_df)
     return svi_df_lst
 
+
 def save_dfs_to_csv(df_list: list, data_name: str):
-    '''
+    """
     data_name {'svi','micro'}
-    '''
-    assert data_name in {'svi','micro'}, 'data_name invalid, expected "svi"/"micro"'
+    """
+    assert data_name in {"svi", "micro"}, 'data_name invalid, expected "svi"/"micro"'
     for i in range(4):
-        fname = pathlib.Path('clean_tables/'+f'{data_name}_{i}.csv')
-        if not pathlib.Path(fname).is_file(): # only if it does not exist yet
+        fname = pathlib.Path("clean_tables/" + f"{data_name}_{i}.csv")
+        if not pathlib.Path(fname).is_file():  # only if it does not exist yet
             df_list[i].to_csv(fname, index=False)
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     ##### process micro data ######
     micro_df_list = micro_data_read_and_split()
     micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
     cdm.clean_micro_df_list(micro_df_list)
-    
-    save_dfs_to_csv(micro_df_list)
+
+    save_dfs_to_csv(micro_df_list, "micro")
 
     ##### process SVI data ######
     svi_df_list = svi_data_read_calculate_and_split()
@@ -157,10 +155,5 @@ if __name__=='__main__':
     cds.svi_label(svi_df_list)
 
     # save to csv
-    save_dfs_to_csv(svi_df_list)
-
-
-    
-    
-
+    save_dfs_to_csv(svi_df_list, "svi")
 
