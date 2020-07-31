@@ -132,31 +132,33 @@ def split_svi_to_reactor(data_svi: pd.DataFrame):
         svi_df_lst.append(reactor_df)
     return svi_df_lst
 
+def save_dfs_to_csv(df_list: list, data_name: str):
+    '''
+    data_name {'svi','micro'}
+    '''
+    assert data_name in {'svi','micro'}, 'data_name invalid, expected "svi"/"micro"'
+    for i in range(4):
+        fname = pathlib.Path('clean_tables/'+f'{data_name}_{i}.csv')
+        if not pathlib.Path(fname).is_file(): # only if it does not exist yet
+            df_list[i].to_csv(fname, index=False)
 
 if __name__=='__main__':
-    ##### micro data ######
+    ##### process micro data ######
     micro_df_list = micro_data_read_and_split()
-    # micro_df_list = dates_to_objects(micro_df_list) # old later
     micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
     cdm.clean_micro_df_list(micro_df_list)
     
-    # # save to csv
-    # for i in range(4):
-    #     fname = pathlib.Path('clean_tables/'+f'micro_{i}.csv')
-    #     if not pathlib.Path(fname).is_file(): # only if it does not exist yet
-    #         micro_df_list[i].to_csv(fname, index=False)
+    save_dfs_to_csv(micro_df_list)
 
-    # ##### SVI data ######
+    ##### process SVI data ######
     svi_df_list = svi_data_read_calculate_and_split()
     cds.set_datetime_index(svi_df_list)
     cds.interpolate_svi_dfs(svi_df_list)
     cds.svi_label(svi_df_list)
 
-    # # save to csv
-    # for i in range(4):
-    #     fname = pathlib.Path('clean_tables/'+f'svi_{i}.csv')
-    #     if not pathlib.Path(fname).is_file(): # only if it does not exist yet
-    #         svi_df_list[i].to_csv(fname)
+    # save to csv
+    save_dfs_to_csv(svi_df_list)
+
 
     
     
