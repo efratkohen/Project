@@ -87,18 +87,20 @@ def list_to_df(score_lst: list, delay_lst: list, sections: list, labels: list, s
     return df 
 
 
-# def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list, delay_lst: list):
-#     sns.set()
-#     for label in labels:
-#         for section in sections:
-#             for score_type in score_lst_name:
-#                 sns.stripplot(data=score_df[label, section, score_type], x='delay', y='{label}, {section}, {score_type}', size=10)
-#                 score_df.plot(kind='scatter',x='delay',y=[label, section, score_type])
-#                 plt.ylim(0, 1)
-                # plt.savefig(f"KNeighbors_plot/{label}_{section}_{score_type}.png")
-    data = score_df[label, section, score_type]
-    x : data.index.levels[0]
-    y : data
+def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: list, score_lst_name: list):
+    for label in labels:
+        for section in sections:
+            data = score_df.loc[:,(label,section)]
+            colors = ['r', 'g', 'b', 'y']
+            fig, ax = plt.subplots(1,1)
+            for i in range(4):
+                plt.scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
+            plt.ylim(0, 1)
+            plt.xlabel('delay')
+            plt.ylabel('score')
+            plt.legend(loc='lower right')
+            plt.savefig(f"KNeighbors_plot/{label}_{section}.png")
+
 
 if __name__ == "__main__":
     delay_lst = [*range(0, 18, 3)]
@@ -109,21 +111,8 @@ if __name__ == "__main__":
     k = 9 # erase 
     score_lst = create_score_list(labels, sections, delay_lst, k)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
-    print(score_df)
+    save_plot(score_df, delay_lst, sections, labels, score_lst_name)
     
 
     # x[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\x_0.xlsx", index=True, header=True)
     # y[0].to_excel(r"E:\python\Microorganism_Effects_Analysis\y_0.xlsx", index=True, header=True)
-
-    my_data = score_df.loc[:,('SV_label','all')]
-    
-    fig, ax = plt.subplots(1,1)
-    colors = ['r','g','b']
-    cols = ['bad_s', 'reasonable_s', 'good_s']
-    for i in range(3):
-        plt.scatter(my_data.index.levels[0], y=my_data.loc[:,cols[i]], color=colors[i])
-    plt.xlabel('something')
-    
-
-
-    my_data.plot(kind='scatter', x=my_data.index.levels[0], y='bad_s', color='r')
