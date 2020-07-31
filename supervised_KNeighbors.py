@@ -89,9 +89,9 @@ def choose_k_value(section: str, label: str, delay: int):
     k : int
         k choosen by the user
     """
-    if section != 'all' or 'total_counts' or 'filaments' or 'various':
+    if section not in {'all', 'total_counts', 'filaments', 'various'}:
         raise ValueError("Please supply a valid section value: 'all','total_counts', 'filaments', 'various' ")
-    if label != 'SV_label' or 'SVI_label':
+    if label not in {'SV_label', 'SVI_label'}:
         raise ValueError("Please supply a valid label value: 'SV_label', 'SVI_label' ")
     data = ML_prepare(delay)
     table_xy = data.get_partial_table(x_section=section,y_labels=True)
@@ -211,19 +211,23 @@ def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: l
     """
     
     for label in labels:
+        fig, ax = plt.subplots(1 , 4, figsize=(14,4), sharey=True)
+        fig.suptitle(f'scores of KNeighbors prediction for {label}', fontsize=20)
+        fig.text(0.5, 0.0, "Delay", ha="center", va="center", fontsize=14)
+        fig.text(0.0, 0.5, "Score", ha="center", va="center", fontsize=14, rotation=90)
+        plt.ylim(0, 1)
+        section_count = 0
         for section in sections:
             data = score_df.loc[:,(label,section)]
             colors = ['r', 'g', 'b', 'y']
-            axs = ['ax1', 'ax2', 'ax3', 'ax4']
-            fig, ax = plt.subplots(1,1)
             for i in range(4):
-                plt.scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
-            plt.ylim(0, 1)
-            plt.xlabel('delay')
-            plt.ylabel('score')
-            plt.legend(loc='lower right')
-            plt.title(f'scores of KNeighbors prediction for {label} with {section}')
-            plt.savefig(f"figures/KNeighbors_{label}_{section}.png")
+                ax[section_count].scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
+                ax[section_count].set_title(f'{section}')
+                ax[section_count].set_xticks(delay_lst)
+            section_count+= 1
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+        fig.savefig(f"figures/KNeighbors_{label}.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":
@@ -231,8 +235,8 @@ if __name__ == "__main__":
     sections = ['all','total_counts', 'filaments', 'various']
     labels = ['SV_label', 'SVI_label']
     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
-    k = choose_k_value('filaments', 'SVI_label', 6)
-    # k = 9 # erase 
+    # k = choose_k_value('filaments', 'SVI_label', 6)
+    k = 9 # erase 
     score_lst = create_score_list(labels, sections, delay_lst, k)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
     save_plot(score_df, delay_lst, sections, labels, score_lst_name)

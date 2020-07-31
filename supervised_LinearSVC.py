@@ -138,18 +138,23 @@ def save_plot(score_df: pd.DataFrame, delay_lst: list, sections: list, labels: l
     """
     
     for label in labels:
+        fig, ax = plt.subplots(1 , 4, figsize=(14,4), sharey=True)
+        fig.suptitle(f'scores of LinearSVC prediction for {label}', fontsize=20)
+        fig.text(0.5, 0.0, "Delay", ha="center", va="center", fontsize=14)
+        fig.text(0.0, 0.5, "Score", ha="center", va="center", fontsize=14, rotation=90)
+        plt.ylim(0, 1)
+        section_count = 0
         for section in sections:
             data = score_df.loc[:,(label,section)]
             colors = ['r', 'g', 'b', 'y']
-            fig, ax = plt.subplots(1,1)
             for i in range(4):
-                plt.scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
-            plt.ylim(0, 1)
-            plt.xlabel('delay')
-            plt.ylabel('score')
-            plt.legend(loc='lower right')
-            plt.title(f'scores of LinearSVC prediction for {label} with {section}')
-            plt.savefig(f"figures/LinearSVC_{label}_{section}.png")
+                ax[section_count].scatter(data.index.levels[0], y=data.loc[:,score_lst_name[i]], color=colors[i], label=score_lst_name[i])
+                ax[section_count].set_title(f'{section}')
+                ax[section_count].set_xticks(delay_lst)
+            section_count+= 1
+        plt.legend(loc='upper right')
+        plt.tight_layout()
+        fig.savefig(f"figures/LinearSVC_{label}.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":
