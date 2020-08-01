@@ -2,6 +2,7 @@ from clean_data_svi import *
 from files_process_save import *
 
 import pytest
+import math
 
 
 def test_check_svi_values_range_zeros():
@@ -36,11 +37,13 @@ def test_check_svi_values_range_ranges():
 
 
 def test_svi_calculate_results():
-    
-    pass
+    data_svi = read_data("SVI.csv")
+    res = svi_calculate(data_svi)
+    assert math.isclose(res.loc[0,'SVI1'], 300 * 1000 / 1348)
 
 
 def test_set_datetime_index():
+
     pass
 
 
