@@ -225,7 +225,16 @@ def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range):
     Each subplot is a delay. In each there is all the results of a given section for all 5 models.
     """
     days_df_dict = {}
-    categories = scores_models_dict["Lasso"][3]._fields
+    categories = (
+        "all_sv",
+        "all_svi",
+        "filaments_sv",
+        "filaments_svi",
+        "total_counts_sv",
+        "total_counts_svi",
+        "various_sv",
+        "various_svi",
+    )
 
     for day in delay_range:
         df_day = pd.DataFrame(columns=["score", "section", "sv_svi", "model"])
@@ -253,6 +262,9 @@ def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range):
 
 
 def days_swarmplot(days_df_dict):
+    '''
+    ** requires days 2-7 in days_df_dict
+    '''
     days_range = range(2, 8)
     fig2, ax2 = plt.subplots(2, 3, figsize=(12, 8), sharey=True)
     plt.ylim((-0.3, 0.6))
