@@ -48,7 +48,7 @@ def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
 
 def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     """
-    splits the microscopic data to 4 reactors dataframes and save it in df list
+    Splits the microscopic data to 4 reactors dfs and saves it in df list
     Changes the columns names to be identical in the microscopic data frame of each reactor.
     
     Parameters
@@ -170,7 +170,8 @@ def split_svi_to_reactor(data_svi: pd.DataFrame):
 
 def save_dfs_to_csv(df_list: list, data_name: str):
     """
-    save the split, cleand list of 4 bio reactors dataframes to csv file.
+    Save the split, cleaned list of 4 bio reactors dataframes to csv file.
+    If files already exists, skips saving.
 
     Parameters
     ----------
