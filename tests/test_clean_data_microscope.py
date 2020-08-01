@@ -3,6 +3,7 @@ from files_process_save import *
 
 import pytest
 import datetime
+import pandas as pd 
 
 def test_dates_to_datetime_objects_list_changed():
     micro_df_list = micro_data_read_and_split()
@@ -20,17 +21,12 @@ def test_remove_nan_rows_index_change():
     orig_len = df0.shape[0]
     # test
     remove_nan_rows(df0)
-    assert df0.shape[0] > orig_len
-    assert isinstance(mic0.index, pd.RangeIndex)
+    assert df0.shape[0] < orig_len
+    assert isinstance(df0.index, pd.RangeIndex)
 
 def test_fix_col_to_float():
     # generate_mock_df with two columns '1,000.00'
-    micro_df_list = micro_data_read_and_split()
-    micro_df_list = dates_to_datetime_objects(micro_df_list)
-    
-    df0 = micro_df_list[0]
-    remove_nan_rows(df0)
-
+    df0 = pd.DataFrame(np.random.rand(10,10))
     df0.iloc[1,2]='1,000.00'
     df0.iloc[8,2]='15,000.00'
 
@@ -42,14 +38,24 @@ def test_fix_col_to_float():
 
 
 def test_fix_object_cols_to_float():
-    # generate_mock_df with one columns '1,000.00'
-    # make sure all types are float
-    pass
+    # generate_mock_df with two columns '1,000.00'
+    df0 = pd.DataFrame(np.random.rand(10,10))
+    df0.iloc[1,2]='1,000.00'
+    df0.iloc[1,8]='15,000.00'
+    assert not all(df0.dtypes==np.float64)
+
+    fix_object_cols_to_float(df0)
+    assert all(df0.dtypes==np.float64)
 
 def test_remove_negatives():
     # generate_mock_df with negatives
-    # make sure they are now is_null
-    pass
+    df0 = pd.DataFrame(np.random.rand(10,10))
+    df0.iloc[4,4] = -1
+    df0.iloc[4,8] = 0
+    remove_negatives(df0)
+    assert pd.isnull(df0.iloc[4,4])
+    assert df0.iloc[4,8] == 0
+
 
 def test_filaments_zero_to_nan():
     # load data
