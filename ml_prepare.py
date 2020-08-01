@@ -2,10 +2,35 @@ import clean_data_svi as cds
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 class ML_prepare:
+    """
+    This class is based on the cleaned raw data tables in the "clean_tables" folder.
+
+    This class allows for a quick, simple generation of the data
+    defined by the desired hyper paramater values: 
+    1) Day of delay (between the microscopic observation and water results)
+    2) Section of organisms to test ('all','filaments','various','total counts')
+
+    The user can easily get a table that represents the "X" and "y" he chooses, 
+    ready for testing with Machine Learning models.
+    There is also an option to chooses whether the "y" is the labeled data or the raw values.
+
+    attributes
+    --------
+    _svi_lst, _micro_lst: list
+        list of DF, read from the cleaned tables
+    _delay: int
+        number of days delayed between the microscopic observation and sv/svi results.
+    _x, _y: pd.DataFrame
+        contain the whole data, of all 4 bio_reactors, not yet devided to sections, 
+        and still containing the pre-existing NaN values
+    delay_table: pd.DataFrame
+        x and y concatenated, with keys "micro" and "svi" as extra index level.
+    """
+
     def __init__(self, delay: int):
         self._svi_lst = self.__read_and_index_svi_tables()
         self._micro_lst = self.__read_and_index_micro_tables()
@@ -35,16 +60,44 @@ class ML_prepare:
         return self._delay
 
     def __read_and_index_svi_tables(self):
+        '''
+        Reads 4 svi tables using helper function.
+        Sets datetime index using helper function.
+
+        return
+        -------
+        svi_tables: list of DF
+        '''
         svi_tables = self.__read_clean_tables("svi")
         cds.set_datetime_index(svi_tables)
         return svi_tables
 
     def __read_and_index_micro_tables(self):
+        '''
+        Reads 4 microscopic tables using helper function.
+        Sets datetime index using helper function.
+
+        return
+        -------
+        micro_tables: list of DF
+        '''
         micro_tables = self.__read_clean_tables("micro")
         cds.set_datetime_index(micro_tables)
         return micro_tables
 
     def __read_clean_tables(self, data_type: str):
+        '''
+        Reads 4 data tables from files, to list of DF.
+
+        Parameters
+        ----------
+        data_type: str
+            "micro" / "svi"
+
+        return
+        ---------
+        clean_tables_lst: list of DF
+        '''
         assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
         clean_tables_lst = []
         for i in range(4):
@@ -53,6 +106,15 @@ class ML_prepare:
         return clean_tables_lst
 
     def get_columns_of_sections(self):
+        '''
+        Creates lists of column names for each group of organisms
+
+        return
+        ---------
+        total_cols: list
+        filament_cols: list
+        various_organisms_cols: list
+        '''
         total_cols = [col for col in self._x.columns if "Total" in col]
         filament_cols = [col for col in self._x.columns if "Filaments_" in col]
         various_organisms_cols = [
@@ -64,21 +126,35 @@ class ML_prepare:
 
     def get_partial_table(self, x_section: str, y_labels: bool = False):
         """
-        x_section: str. 'all' / 'total_counts' / 'filaments' / 'various'
+        Generates a table with only the desired groups of organisms.
+        Option to choose labeled or non-labeled data.
 
-        'all' - gives all single organisms, (excludes total counts)
+        Parameters
+        -----------
+        x_section: str
+            'all' / 'total_counts' / 'filaments' / 'various'
+            * 'all' - gives all single organisms (excludeing total counts)
+        y_labels: bool
+            determines if results in returned table will be labeled
+
+        return
+        --------
+        ready_xy_table: pd.DataFrame
+            desired table, no NaN values, with keys "x" and "y" as extra index level.
         """
         assert x_section in {"all", "total_counts", "filaments", "various"}, (
             "x_section invalid."
             + "expected 'all' / 'total_counts' / 'filaments' / 'various'"
         )
 
+        # get column names
         (
             total_cols,
             filament_cols,
             various_organisms_cols,
         ) = self.get_columns_of_sections()
 
+        # get x groups as desired
         if x_section == "all":  # no total counts
             various_x = self._x.loc[:, various_organisms_cols].reset_index(
                 level=1, drop=True
@@ -94,6 +170,7 @@ class ML_prepare:
                 level=1, drop=True
             )
 
+        # get chosen y data
         if y_labels:
             only_y = self._y.loc[:, "SV_label":"SVI_label"].reset_index(
                 level=1, drop=True
@@ -103,18 +180,24 @@ class ML_prepare:
                 level=1, drop=True
             )
 
+        # concat x and y
         ready_xy_table = pd.concat([only_x, only_y], keys=["x", "y"], axis=1)
         ready_xy_table.dropna(inplace=True)
 
         return ready_xy_table
 
+
     def plot_svi(self):
+        '''
+        Plot SV and SVI results over the time period in the raw data.
+        '''
         fig_svi, axes = plt.subplots(2, 1)
         fig_svi.suptitle("SV and SVI per reactors")
         for i in range(4):
             axes[0].plot(self.svi_lst[i]["SVI"], label=f"bio reactor {i+1}")
             axes[1].plot(self.svi_lst[i]["Settling_velocity"])
         axes[0].set_ylabel("SVI")
+        axes[1].set_ylabel("SV")
         axes[0].set_xticks([])
         axes[0].legend()
         plt.xticks(rotation=70)
@@ -122,10 +205,18 @@ class ML_prepare:
 
     def __create_x_y_delayed(self):
         """
-        Returns:
+        joins all 4 bioreactor tables to create raw data with the desired delay in 
+        days between x (microscopic data) and y (sv/svi data).
+        Using helper function to create the delay of every bioreactor before joining. 
+        The resulting DF has an extra level of columns named '1','2','3','4'
+        to access each bioreactor.
+        
+        return
         ------
-        - micro_x - df of all 4 bio-reactors one after the other
-        - svi_y
+        - x: pd.DataFrame
+            microscopic data, all 4 bio-reactors one after the other
+        - y: pd.DataFrame
+            sv/svi data, all 4 bio-reactors one after the other
         """
         svi_y_lst = []
         micro_x_lst = []
@@ -145,14 +236,24 @@ class ML_prepare:
             names=["bio_reactor", "date"],
         )
 
-        self._x = x
-        self._y = y
+        return x, y
 
-        return self.x, self.y
-
-    def __create_x_y_bioreactor(self, bio_reactor_i):
+    def __create_x_y_bioreactor(self, bio_reactor_i: int):
         """
-        Returns for this bio reactor the micro_x and svi_y with the correct delay.
+        Creates the delay for this bioreactor between x (microscopic data) and y (sv/svi data).
+        Using helper function to find the matching date for every row.
+        
+        Parameters
+        ---------
+        bio_reactor_i: int
+            # of bioreactor
+        
+        return 
+        --------
+        micro_x: pd.DataFrame
+            microscopic data for this bioreactor
+        svi_y: pd.DataFrame
+            sv/svi data for this bioreactor, with matching date rows according to delay
         """
         svi_y = pd.DataFrame(columns=self._svi_lst[0].columns)  # empty svi_y
         micro_x = self._micro_lst[bio_reactor_i].copy()
@@ -174,14 +275,24 @@ class ML_prepare:
         ), f"x and y for bio reactor {bio_reactor_i} not same length"
         return micro_x, svi_y
 
-    def _find_closest_date(self, bio_reactor_i: int, date0):
-        """
-        Gets bio_reactor and date, 
-        Finds in svi[bio_reactor_i] the closest row with date = date0 + delay
-        If it is after the last date, return False
-        If there is no such row, goes to the closest previous row.
-        """
 
+    def _find_closest_date(self, bio_reactor_i: int, date0: datetime):
+        """
+        Finds in the DF svi[bio_reactor_i] the closest row with date = date0 + delay
+        If it is after the last date, return False.
+        If there is no such row, goes to the closest previous row.
+
+        Parameters
+        ---------
+        bio_reactor_i: int
+            # of bioreactor
+        date0: datetime
+            data of row in micro_df to find the matching row in svi_df
+        
+        return 
+        --------
+        final_date: datetime
+        """
         delay_time = timedelta(days=self._delay)
         final_date = date0 + delay_time
 
@@ -197,7 +308,15 @@ class ML_prepare:
             else:  # go one date back
                 final_date -= timedelta(days=1)
 
+
     def __join_x_y(self):
+        '''
+        Concatenates raw data x and y, with keys "micro" and "svi" as extra index level.
+
+        return
+        --------
+        concatenated table: pd.DataFrame
+        '''
         x = self._x.reset_index(level=1, drop=True)
         y = self._y.reset_index(level=1, drop=True)
         return pd.concat([x, y], axis=1, keys=["micro", "svi"])
