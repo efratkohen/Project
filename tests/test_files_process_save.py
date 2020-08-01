@@ -1,6 +1,6 @@
 
 from files_process_save import *
-
+import clean_data_svi as cds
 import pathlib
 import pytest
 
@@ -28,14 +28,15 @@ def test_wrong_input_type():
         check_file(pathlib.Path(fname))
 
 
-def split_microscopic_to_reactor_len():
+def test_split_microscopic_to_reactor_len():
     length = 4
     micro_path = check_file('microscopic_data.csv')
-    data_microscopic = read_data(micro_path)
+    data = read_data(micro_path)
+    data_microscopic = split_microscopic_to_reactor(data)
     assert len(data_microscopic) == length
 
 
-def split_microscopic_to_reactor_column_name():
+def test_split_microscopic_to_reactor_column_name():
     column_names = [
             "date",
             "ameoba_arcella",
@@ -76,8 +77,24 @@ def split_microscopic_to_reactor_column_name():
             "Filaments_zoogloea_index",
         ]
     micro_path = check_file('microscopic_data.csv')
-    data_microscopic = read_data(micro_path)
-    assert data_microscopic.columns == column_names
+    data = read_data(micro_path)
+    data_microscopic = split_microscopic_to_reactor(data)
+    assert list(data_microscopic[0].columns) == column_names
 
-# def test_invalid_input_data_reactor_SV():
-#     typeerror_inputs=[-1.0 , 6.0, None, 's']
+
+def test_split_svi_to_reactor_column_names():
+    columns_names = ['date', 'Settling_velocity', 'SVI']
+    svi_path = check_file('SVI.csv')
+    data = read_data(svi_path)
+    data_svi_computed = cds.svi_calculate(data)
+    data_svi = split_svi_to_reactor(data_svi_computed)
+    assert list(data_svi[0].columns) == columns_names
+
+
+def test_split_svi_to_reactor_len():
+    length = 4
+    svi_path = check_file('SVI.csv')
+    data = read_data(svi_path)
+    data_svi_computed = cds.svi_calculate(data)
+    data_svi = split_svi_to_reactor(data_svi_computed)
+    assert len(data_svi) == length
