@@ -1,6 +1,7 @@
 from ml_prepare import ML_prepare
 
 import pytest
+import pandas as pd 
 
 def test_init_types():
     delay = 3
@@ -27,9 +28,9 @@ def test_init_df_lists():
 def test_init_df_xy():  
     delay = 5
     data = ML_prepare(delay)
-    assert isinstance(self._x, pd.DataFrame)
-    assert isinstance(self._y, pd.DataFrame)
-    assert isinstance(self.delay_table, pd.DataFrame)
+    assert isinstance(data._x, pd.DataFrame)
+    assert isinstance(data._y, pd.DataFrame)
+    assert isinstance(data.delay_table, pd.DataFrame)
 
 
 def test_indirect_read_and_index_svi_tables():
@@ -41,34 +42,43 @@ def test_indirect_read_and_index_svi_tables():
 
 
 def test_get_partial_table_wrong_input():
-    # section = 'blah'
-    # function raises AssertionError
-    pass
+    delay = 10
+    data = ML_prepare(delay)
+
+    section = 'blah'
+    with pytest.raises(AssertionError):
+        t = data.get_partial_table(x_section=section, y_labels=True)
 
 
 def test_get_partial_table_no_nans():
-    # get data
-    # run on all sections
-    # assert no rows with nans
-    pass
+    delay = 10
+    data = ML_prepare(delay)
+
+    sections = ["all", "total_counts", "filaments", "various"]
+    for section in sections:
+        t = data.get_partial_table(x_section=section)
+        assert not t.isnull().values.any()
 
 
 def test_get_partial_table_x_sections_lengths():
-    section_lengths = [1, 2, 3, 4]
-    section_names = [1, 2, 3, 4]
-    # for i in range(4):
-        # table = function
-        # assert table['x'].shape[1]==section_lengths[i]
-    pass
+    delay = 6
+    data = ML_prepare(delay)
+    
+    sections = {"all":27, "total_counts":9, "filaments":9, "various":18}
+    for section in sections:
+        t = data.get_partial_table(x_section=section)
+        assert t['x'].shape[1]== sections[section]
 
 
 def test_get_partial_table_y_labels():
-    # get data
-    # table = function (lables=True)
-    # # assert table['y'].columns.to_list() == ['SV_label','SVI_label']
-    # table = function (lables=False)
-    # # assert table['y'].columns.to_list() == ['Settling_velocity','SVI']
-    pass
+    delay = 0
+    data = ML_prepare(delay)
+
+    t1 = data.get_partial_table(x_section='all', y_labels=True)
+    assert t1['y'].columns.to_list() == ['SV_label','SVI_label']
+
+    t2 = data.get_partial_table(x_section='all', y_labels=False)
+    assert t2['y'].columns.to_list() == ['Settling_velocity', 'SVI']
 
 
 
