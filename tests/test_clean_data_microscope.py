@@ -59,8 +59,23 @@ def test_remove_negatives():
 
 def test_filaments_zero_to_nan():
     # load data
-    # assert two kinds of rows are now all null
-    pass
+    micro_df_list = micro_data_read_and_split()
+    micro_df_list = dates_to_datetime_objects(micro_df_list)
+    micro_df = micro_df_list[1]
+    remove_nan_rows(micro_df)
+    fix_object_cols_to_float(micro_df)
+    remove_negatives(micro_df)
+    # create rows that are nan in two ways
+    micro_df.loc[1,'Total Count- Filaments']=0
+    micro_df.loc[1,'Filaments_Nocardia_index':]=np.nan
+
+    micro_df.loc[2,'Total Count- Filaments']=8
+    micro_df.loc[2,'Filaments_Nocardia_index':]=0
+    
+    # assert all nan
+    filaments_zero_to_nan(micro_df)
+    assert (pd.isnull(micro_df.loc[1, 'Total Count- Filaments':])).all()
+    assert (pd.isnull(micro_df.loc[2, 'Total Count- Filaments':])).all()
 
 def test_assert_totals_correct():
     # load data
