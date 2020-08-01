@@ -5,37 +5,41 @@ import pytest
 
 
 def test_create_models_dict():
-    # assert type dict
-    # loop over dic keys():
-        # module = getattr(las, '__module__', None)
-        # assert 'sklearn' in module
-    pass
+    models_dict = create_models_dict()
+    assert isinstance(models_dict, dict)
+    # assert models are from sklearn module
+    for model in models_dict:
+        module = getattr(model, '__module__', None)
+        assert 'sklearn' in module
 
 
 def test_get_scores_of_all_models():
-    # get model_dict
-    # create delay_range = range(1, 13)
-    # get_scores_of_all_models(models_dict, delay_range, print_flag=False)
-    # assert type dict
-    # assert keys are 5 models
-    pass
+    models_dict = create_models_dict()
+    model_names = set(models_dict.values())
+    delay_range = range(4, 11)
+    scores_models_dict = get_scores_of_all_models(models_dict, delay_range, print_flag=False)
+    assert isinstance(scores_models_dict, dict)
+    for key in scores_models_dict:
+        assert key in model_names
 
 
 def test_get_scores_of_model():
-    # create delay_range
-    # get one model, model_dict[1]
-    # res = get_scores_of_model(regr_model, model_name: str, delay_range, print_flag=False)
-    # assert type dict
-    # assert keys fit range
-    pass
+    models_dict = create_models_dict()
+    [regr_model, model_name] = list(models_dict.items())[0]
+
+    delay_range = range(4, 11)
+    res = get_scores_of_model(regr_model, model_name, delay_range, print_flag=False)
+    assert isinstance(res, dict)
+    assert set(res.keys())==set(delay_range)
 
 
 def test_loop_over_sections_and_y():
-    # create data
-    # res = loop_over_sections_and_y(data, regr_model)
-    # assert res is namedtuple
-    # assert res len 8
-    pass
+    data = ML_prepare(7)
+    models_dict = create_models_dict()
+    regr_model = list(models_dict.keys())[0]
+    res = loop_over_sections_and_y(data, regr_model)
+    assert isinstance(res, tuple)
+    assert len(res)==9
 
 
 def test_regr_model_func():
