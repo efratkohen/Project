@@ -33,6 +33,26 @@ class ML_prepare:
     def delay(self):
         return self._delay
 
+
+    def __read_and_index_svi_tables(self):
+        svi_tables = self.__read_clean_tables("svi")
+        cds.set_datetime_index(svi_tables)
+        return svi_tables
+
+    def __read_and_index_micro_tables(self):
+        micro_tables = self.__read_clean_tables("micro")
+        cds.set_datetime_index(micro_tables)
+        return micro_tables
+
+    def __read_clean_tables(self, data_type: str):
+        assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
+        clean_tables_lst = []
+        for i in range(4):
+            table = pd.read_csv(f"clean_tables/{data_type}_{i}.csv", index_col=False)
+            clean_tables_lst.append(table)
+        return clean_tables_lst
+
+
     def get_partial_table(self, x_section: str, y_labels: bool = False):
         """
         x_section: str. 'all' / 'total_counts' / 'filaments' / 'various'
@@ -93,23 +113,7 @@ class ML_prepare:
         plt.xticks(rotation=70)
         plt.show()
 
-    def __read_and_index_svi_tables(self):
-        svi_tables = self.__read_clean_tables("svi")
-        cds.set_datetime_index(svi_tables)
-        return svi_tables
 
-    def __read_and_index_micro_tables(self):
-        micro_tables = self.__read_clean_tables("micro")
-        cds.set_datetime_index(micro_tables)
-        return micro_tables
-
-    def __read_clean_tables(self, data_type: str):
-        assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
-        clean_tables_lst = []
-        for i in range(4):
-            table = pd.read_csv(f"clean_tables/{data_type}_{i}.csv", index_col=False)
-            clean_tables_lst.append(table)
-        return clean_tables_lst
 
     def __create_x_y_delayed(self, days_delay: int):
         """
@@ -143,10 +147,6 @@ class ML_prepare:
 
         return self.x, self.y
 
-    def __join_x_y(self):
-        x = self._x.reset_index(level=1, drop=True)
-        y = self._y.reset_index(level=1, drop=True)
-        return pd.concat([x, y], axis=1, keys=["micro", "svi"])
 
     def __create_x_y_bioreactor(self, bio_reactor_i):
         """
@@ -172,6 +172,7 @@ class ML_prepare:
             svi_y.shape[0] == micro_x.shape[0]
         ), f"x and y for bio reactor {bio_reactor_i} not same length"
         return micro_x, svi_y
+
 
     def __find_closest_date(self, bio_reactor_i: int, date0):
         """
@@ -199,6 +200,12 @@ class ML_prepare:
                     f"date {final_date} is not found in svi bio reactor {bio_reactor_i}"
                 )  # later
                 final_date -= timedelta(days=1)
+
+
+    def __join_x_y(self):
+        x = self._x.reset_index(level=1, drop=True)
+        y = self._y.reset_index(level=1, drop=True)
+        return pd.concat([x, y], axis=1, keys=["micro", "svi"])
 
 
 if __name__ == "__main__":
