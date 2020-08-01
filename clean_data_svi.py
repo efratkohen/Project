@@ -2,9 +2,18 @@ import pandas as pd
 import numpy as np
 
 def check_svi_values_range(svi_data: pd.DataFrame) -> pd.DataFrame:
-    '''
-    check and replace incorrect values with nan
-    '''
+    """
+    Check and replace incorrect values with nan
+
+    Parameters
+    ----------
+    svi_data: pd.DataFrame
+
+    return
+    ----------
+    svi_data: pd.DataFrame
+
+    """
 
     svi_data.replace(0, np.nan, inplace=True)
     ranges_lst = [(0, 6), (0, 1000), (500, 4000)]
@@ -22,7 +31,17 @@ def check_svi_values_range(svi_data: pd.DataFrame) -> pd.DataFrame:
 
 
 def svi_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
-    """Add column of SVI caculation fot each reactor"""
+    """
+    Add column of SVI caculation fot each reactor
+    
+    Parameters
+    ----------
+    data_svi: pd.DataFrame
+
+    return
+    ----------
+    data_svi: pd.DataFrame
+    """
     for i in range(1, 5):
         data_svi.loc[:,f"SVI{i}"] = data_svi[f"volume reactor {i}"] * 1000 / data_svi[f"mlss reactor {i}"]
 
@@ -30,19 +49,41 @@ def svi_calculate(data_svi: pd.DataFrame) -> pd.DataFrame:
 
 
 def set_datetime_index(df_list: list):
+    """
+    Set datetime as index.
+
+    Parameters
+    ----------
+    df_list: list
+    
+    """
     for i in range(4):
         df_list[i].set_index('date', inplace=True)
         df_list[i].index = pd.to_datetime(df_list[i].index)
 
 
 def interpolate_svi_dfs(svi_df_list: list):
+    """
+    Replace nan values with interpolate function.
+
+    Parameters
+    ----------
+    svi_df_list: list
+    
+    """
     for i in range(4):
         svi_df_list[i].interpolate(inplace=True, method='time')
 
 
 def svi_label(svi_df_list: list):
-    '''
-    '''
+    """
+    Add labels columns in each dataframe in svi dataframe list
+    
+    Parameters
+    ----------
+    svi_df_list: list
+
+    """
     # define borders between bad / reasonable / good results
     SVI_label=[160.0, 120.0]
     SV_label=[3.0, 3.5] 
@@ -51,9 +92,22 @@ def svi_label(svi_df_list: list):
 
 
 def label_data(data_svi: pd.DataFrame, label_SVI: list, label_SV: list) -> pd.DataFrame:
-    '''
-    add labels column for SVI and SV results as bad, reasonable or good
-    '''
+    """
+    Add labels column for SVI and SV results as bad, reasonable or good
+
+    Parameters
+    ----------
+    data_svi: pd.DataFrame
+    label_SVI: list
+        define borders between bad / reasonable / good results of SVI
+    label_SV: list
+        define borders between bad / reasonable / good results of SV
+
+    return
+    ----------
+    data_svi: pd.DataFrame
+
+    """
 
     data_svi.loc[:,"SV_label"] = np.where(
         data_svi.loc[:, "Settling_velocity"] <= label_SV[0],
