@@ -7,8 +7,19 @@ from typing import Union  # Tuple later
 
 
 def check_file(data_fname: Union[pathlib.Path, str]):
-    """Check for valid file
-    accept strings and pathlib.Path objects"""
+    """
+    Check for valid file name
+    accept strings and pathlib.Path objects
+
+    Parameters
+    ----------
+    data_fname: pathlib.Path or str
+
+    return
+    ----------
+    fname: pathlib.Path
+    """
+
     try:
         fname = pathlib.Path(data_fname)
     except TypeError:
@@ -20,28 +31,29 @@ def check_file(data_fname: Union[pathlib.Path, str]):
 
 
 def read_data(data_fname: Union[pathlib.Path, str]) -> pd.DataFrame:
-    """Reads data into DF"""
+    """
+    Reads data into DF
+    
+    Parameters
+    ----------
+    data_fname: pathlib.Path or str
+
+    return
+    ----------
+    data: pd.DataFrame
+    """
     data = pd.read_csv(data_fname)
     return data
 
 
-def micro_data_read_and_split(micro_fname: str = "microscopic_data.csv"):
-    """
-    Reads and splits.
-
-    Returns
-    -------
-    - micro_df_list: List of 4 dfs, each representing a bio_reactor
-    """
-    micro_path = check_file(micro_fname)
-    data_microscopic = read_data(micro_path)
-    micro_df_list = split_microscopic_to_reactor(data_microscopic)
-    return micro_df_list
-
-
 def split_microscopic_to_reactor(data_micro: pd.DataFrame):
-    """Split the microscopic data frame to 4 dataframes for each reactor.
-    Change the columns names to be identical
+    """
+    splits the microscopic data to 4 reactors dataframes and save it in df list
+    Changes the columns names to be identical in the microscopic data frame of each reactor.
+    
+    Parameters
+    ----------
+    data_micro: pd.DataFrame
     
     Returns
     -------
@@ -97,13 +109,36 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     return micro_df_list
 
 
-def svi_data_read_calculate_and_split(svi_fname: str = "SVI.csv"):
+def micro_data_read_and_split(micro_fname: str = "microscopic_data.csv"):
     """
-    Reads, computes values SVI, and splits.
+    Reads csv file and splits the data to 4 reactors df list.
+    Combine the functions check_file, read_data and split_microscopic_to_reactor to one function.
+    
+    Parameters
+    ----------
+    micro_fname_fname: str
 
     Returns
     -------
-    - svi_df_list: List of 4 dfs, each representing a bio_reactor
+    micro_df_list: List of 4 dfs, each representing a bio_reactor
+    """
+    micro_path = check_file(micro_fname)
+    data_microscopic = read_data(micro_path)
+    micro_df_list = split_microscopic_to_reactor(data_microscopic)
+    return micro_df_list
+
+
+def svi_data_read_calculate_and_split(svi_fname: str = "SVI.csv"):
+    """
+    Reads CSV file, computes values SVI, and splits to 4 bio reactors.
+
+    Parameters
+    ----------
+    svi_fname: str
+
+    Returns
+    -------
+    svi_df_list: List of 4 dfs, each representing a bio_reactor
     """
     svi_path = check_file(svi_fname)
     data_svi = read_data(svi_path)
@@ -115,7 +150,11 @@ def svi_data_read_calculate_and_split(svi_fname: str = "SVI.csv"):
 
 def split_svi_to_reactor(data_svi: pd.DataFrame):
     """Split the SVI data frame to 4 dataframes for each reactor.
-    Change the columns names to be identical
+    Change the columns names to be identical.
+
+    Parameters
+    ----------
+    data_svi: pd.DataFrame
     
     Returns
     -------
@@ -131,7 +170,13 @@ def split_svi_to_reactor(data_svi: pd.DataFrame):
 
 def save_dfs_to_csv(df_list: list, data_name: str):
     """
-    data_name {'svi','micro'}
+    save the split, cleand list of 4 bio reactors dataframes to csv file.
+
+    Parameters
+    ----------
+    df_list: list
+    data_name: str
+        desirable csv file name
     """
     assert data_name in {"svi", "micro"}, 'data_name invalid, expected "svi"/"micro"'
     for i in range(4):
@@ -141,6 +186,14 @@ def save_dfs_to_csv(df_list: list, data_name: str):
 
 
 def set_datetime_index(df_list: list):
+    """
+    set datetime as index.
+
+    Parameters
+    ----------
+    df_list: list
+    
+    """
     for i in range(4):
         df_list[i].set_index('date', inplace=True)
         df_list[i].index = pd.to_datetime(df_list[i].index)
