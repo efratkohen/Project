@@ -47,14 +47,3 @@ def test_score_by_label():
     y_predict = ['good', 'bad', 'reasonable']
     score = [1, 1, 1]
     assert score == score_by_label (y_test, y_predict)
-
-# def test_list_to_dataframe():
-#     data = pd.read_csv("tests/list_to_df.csv")
-#     delay_lst = [*range(0, 18, 3)]
-#     sections = ['all','total_counts', 'filaments', 'various']
-#     labels = ['SV_label', 'SVI_label']
-#     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
-#     k = 9 
-#     score_lst = create_score_list(labels, sections, delay_lst, k)
-#     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
-#     assert data == score_df
