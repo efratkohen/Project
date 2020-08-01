@@ -140,6 +140,11 @@ def save_dfs_to_csv(df_list: list, data_name: str):
             df_list[i].to_csv(fname, index=False)
 
 
+def set_datetime_index(df_list: list):
+    for i in range(4):
+        df_list[i].set_index('date', inplace=True)
+        df_list[i].index = pd.to_datetime(df_list[i].index)
+
 if __name__ == "__main__":
     ##### process micro data ######
     micro_df_list = micro_data_read_and_split()
