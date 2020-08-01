@@ -108,7 +108,7 @@ def test_indirect_create_x_y_bioreactor():
     data._y.loc['3',:].index[0] - data._x.loc['3',:].index[0] == delay_time
 
     # assert that out_of_range dates were removed from x as well
-    assert data._micro_lst[3] = data._x.loc['4',:].shape[0] + 1
+    assert data._micro_lst[3] == data._x.loc['4',:].shape[0] + 1
  
 
 def test_indirect_find_closest_date_missing_date():
