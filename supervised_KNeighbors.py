@@ -32,7 +32,8 @@ def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame
     df : pd.DataFrame
         DataFrame with k_range and scores_k
     """
-    
+    if k_max <= 0:
+        raise ValueError("Please supply k_max value > 0 ")
     k_range = range(1,k_max)
     scores_k = []
     for k in k_range:
@@ -49,7 +50,7 @@ def score_by_label (y_test, y_predict):
 
     Parameters
     ----------
-    y_test : pd.DataFrame
+    y_test : pd.Series
         y value to predict
     y_predict : list
         y value predicted
@@ -130,7 +131,9 @@ def create_score_list(labels: list, sections: list, delay_lst: list, k: int) -> 
     score_delay : list
         score list of score predictions for each combination of label, section and delay
     """
-
+    
+    if k <= 0:
+        raise ValueError("Please supply k value > 0 ")
     score_delay = []
     for label in labels:
         for section in sections:
@@ -235,8 +238,8 @@ if __name__ == "__main__":
     sections = ['all','total_counts', 'filaments', 'various']
     labels = ['SV_label', 'SVI_label']
     score_lst_name = ['bad_s', 'reasonable_s', 'good_s', 'score']
-    # k = choose_k_value('filaments', 'SVI_label', 6)
-    k = 9 # erase 
+    k = choose_k_value('filaments', 'SVI_label', 6)
+    # k = 9 # erase 
     score_lst = create_score_list(labels, sections, delay_lst, k)
     score_df = list_to_df(score_lst, delay_lst, sections, labels, score_lst_name)
     save_plot(score_df, delay_lst, sections, labels, score_lst_name)
