@@ -42,10 +42,10 @@ def test_fix_object_cols_to_float():
     df0 = pd.DataFrame(np.random.rand(10,10))
     df0.iloc[1,2]='1,000.00'
     df0.iloc[1,8]='15,000.00'
-    assert not all(df0.dtypes==np.float64)
+    assert not (df0.dtypes==np.float64).all()
 
     fix_object_cols_to_float(df0)
-    assert all(df0.dtypes==np.float64)
+    assert (df0.dtypes==np.float64).all()
 
 def test_remove_negatives():
     # generate_mock_df with negatives
@@ -65,7 +65,8 @@ def test_filaments_zero_to_nan():
     remove_nan_rows(micro_df)
     fix_object_cols_to_float(micro_df)
     remove_negatives(micro_df)
-    # create rows that are nan in two ways
+    
+    # create rows that are nan or zero in all filaments
     micro_df.loc[1,'Total Count- Filaments']=0
     micro_df.loc[1,'Filaments_Nocardia_index':]=np.nan
 
@@ -79,6 +80,14 @@ def test_filaments_zero_to_nan():
 
 def test_assert_totals_correct():
     # load data
+    micro_df_list = micro_data_read_and_split()
+    micro_df_list = dates_to_datetime_objects(micro_df_list)
+    micro_df = micro_df_list[1]
+    remove_nan_rows(micro_df)
+    fix_object_cols_to_float(micro_df)
+    remove_negatives(micro_df)
+    filaments_zero_to_nan(micro_df)
+
     # change one of the values
     # with pytest.raises(AssertionError):
         # assert_totals_correct(changed_data)

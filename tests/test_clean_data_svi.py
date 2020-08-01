@@ -78,8 +78,8 @@ def test_label_data():
     df0.iloc[0:3, 1] = [200, 150, 10]
 
     labeled_df0 = label_data(df0, SVI_label, SV_label)
-    all(labeled_df0.iloc[0:3, 2] == ['bad','reasonable', 'good'])
-    all(labeled_df0.iloc[0:3, 3] == ['bad','reasonable', 'good'])
+    (labeled_df0.iloc[0:3, 2] == ['bad','reasonable', 'good']).all()
+    (labeled_df0.iloc[0:3, 3] == ['bad','reasonable', 'good']).all()
 
 
 def test_svi_label_changed_list():
