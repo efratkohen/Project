@@ -82,25 +82,24 @@ def test_assert_totals_correct():
     # load data
     micro_df_list = micro_data_read_and_split()
     micro_df_list = dates_to_datetime_objects(micro_df_list)
-    micro_df = micro_df_list[1]
+    micro_df = micro_df_list[2]
     remove_nan_rows(micro_df)
     fix_object_cols_to_float(micro_df)
     remove_negatives(micro_df)
     filaments_zero_to_nan(micro_df)
 
-    # change one of the values
-    # with pytest.raises(AssertionError):
-        # assert_totals_correct(changed_data)
-    pass
+    # change values to wrong sum
+    micro_df.loc[4,'Total Count- Filaments']+=1
+
+    with pytest.raises(AssertionError):
+        assert_totals_correct(micro_df)
 
 def test_clean_micro_df_changed():
-    # load data
-    # do function
-    # check it is changed inplace
-    pass
+    # load df
+    micro_df_list = micro_data_read_and_split()
+    micro_df_list = dates_to_datetime_objects(micro_df_list)
+    before = micro_df_list[3].copy()
 
-def test_clean_micro_df_list_changed():
-    # load list
-    # do function
-    # check all dfs changed
-    pass
+    # clean and check it changed
+    after = clean_micro_df(micro_df_list[3])
+    assert not after.equals(before)
