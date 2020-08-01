@@ -3,7 +3,7 @@ import clean_data_svi as cds
 import pathlib
 import pandas as pd
 import numpy as np
-from typing import Union  # Tuple later
+from typing import Union
 
 
 def check_file(data_fname: Union[pathlib.Path, str]):
@@ -184,19 +184,6 @@ def save_dfs_to_csv(df_list: list, data_name: str):
         if not pathlib.Path(fname).is_file():  # only if it does not exist yet
             df_list[i].to_csv(fname, index=False)
 
-
-def set_datetime_index(df_list: list):
-    """
-    set datetime as index.
-
-    Parameters
-    ----------
-    df_list: list
-    
-    """
-    for i in range(4):
-        df_list[i].set_index('date', inplace=True)
-        df_list[i].index = pd.to_datetime(df_list[i].index)
 
 if __name__ == "__main__":
     ##### process micro data ######

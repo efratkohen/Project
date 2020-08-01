@@ -1,18 +1,17 @@
 import pandas as pd
 from datetime import datetime, timedelta
-import files_process_save as fps
+import clean_data_svi as cds
 import matplotlib.pyplot as plt
 
 
-class ML_prepare():
+class ML_prepare:
     def __init__(self, delay: int):
         self._svi_lst = self.__read_and_index_svi_tables()
         self._micro_lst = self.__read_and_index_micro_tables()
         self._delay = delay
 
         self._x, self._y = self.__create_x_y_delayed(days_delay=self._delay)
-        self.delay_table = self.__join_x_y() # with partial NaN rows un-touched.
-        
+        self.delay_table = self.__join_x_y()  # with partial NaN rows un-touched.
 
     @property
     def svi_lst(self):
@@ -33,60 +32,54 @@ class ML_prepare():
     @property
     def delay(self):
         return self._delay
-    
-    def get_partial_table(self, x_section: str, y_labels: bool=False):
-        '''
+
+    def get_partial_table(self, x_section: str, y_labels: bool = False):
+        """
         x_section: str. 'all' / 'total_counts' / 'filaments' / 'various'
 
         'all' - gives all single organisms, (excludes total counts)
-        '''
-        assert x_section in {'all','total_counts','filaments','various'}, ("x_section invalid." + 
-                                        "expected 'all' / 'total_counts' / 'filaments' / 'various'")
-        
-        total_cols = [col for col in self._x.columns if 'Total' in col]
-        filament_cols = [col for col in self._x.columns if 'Filaments_' in col]
-        various_organisms_cols = [col for col in self._x.columns if 'Filaments_' not in col and 'Total' not in col]
+        """
+        assert x_section in {"all", "total_counts", "filaments", "various"}, (
+            "x_section invalid."
+            + "expected 'all' / 'total_counts' / 'filaments' / 'various'"
+        )
 
+        total_cols = [col for col in self._x.columns if "Total" in col]
+        filament_cols = [col for col in self._x.columns if "Filaments_" in col]
+        various_organisms_cols = [
+            col
+            for col in self._x.columns
+            if "Filaments_" not in col and "Total" not in col
+        ]
 
-        if x_section=='all': # no total counts
-            various_x = self._x.loc[:,various_organisms_cols].reset_index(level=1,drop=True)
-            filaments_x = self._x.loc[:,filament_cols].reset_index(level=1,drop=True)
+        if x_section == "all":  # no total counts
+            various_x = self._x.loc[:, various_organisms_cols].reset_index(
+                level=1, drop=True
+            )
+            filaments_x = self._x.loc[:, filament_cols].reset_index(level=1, drop=True)
             only_x = pd.concat([various_x, filaments_x], axis=1)
-        elif x_section=='total_counts':
-            only_x = self._x.loc[:,total_cols].reset_index(level=1,drop=True)
-        elif x_section=='filaments':
-            only_x = self._x.loc[:,filament_cols].reset_index(level=1,drop=True)
-        elif x_section=='various':
-            only_x = self._x.loc[:,various_organisms_cols].reset_index(level=1,drop=True)
+        elif x_section == "total_counts":
+            only_x = self._x.loc[:, total_cols].reset_index(level=1, drop=True)
+        elif x_section == "filaments":
+            only_x = self._x.loc[:, filament_cols].reset_index(level=1, drop=True)
+        elif x_section == "various":
+            only_x = self._x.loc[:, various_organisms_cols].reset_index(
+                level=1, drop=True
+            )
 
         if y_labels:
-            only_y = self._y.loc[:,'SV_label':'SVI_label'].reset_index(level=1, drop=True)  
+            only_y = self._y.loc[:, "SV_label":"SVI_label"].reset_index(
+                level=1, drop=True
+            )
         else:
-            only_y = self._y.loc[:,'Settling_velocity':'SVI'].reset_index(level=1, drop=True)
-        
-        ready_xy_table = pd.concat([only_x, only_y], keys = ['x','y'], axis=1)
+            only_y = self._y.loc[:, "Settling_velocity":"SVI"].reset_index(
+                level=1, drop=True
+            )
+
+        ready_xy_table = pd.concat([only_x, only_y], keys=["x", "y"], axis=1)
         ready_xy_table.dropna(inplace=True)
 
         return ready_xy_table
-
-
-    def __read_and_index_svi_tables(self):
-        svi_tables = self.__read_clean_tables("svi")
-        fps.set_datetime_index(svi_tables)
-        return svi_tables
-
-    def __read_and_index_micro_tables(self):
-        micro_tables = self.__read_clean_tables("micro")
-        fps.set_datetime_index(micro_tables)
-        return micro_tables
-
-    def __read_clean_tables(self, data_type: str):
-        assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
-        clean_tables_lst = []
-        for i in range(4):
-            table = pd.read_csv(f"clean_tables/{data_type}_{i}.csv", index_col=False)
-            clean_tables_lst.append(table)
-        return clean_tables_lst
 
     def plot_svi(self):
         fig_svi, axes = plt.subplots(2, 1)
@@ -99,6 +92,24 @@ class ML_prepare():
         axes[0].legend()
         plt.xticks(rotation=70)
         plt.show()
+
+    def __read_and_index_svi_tables(self):
+        svi_tables = self.__read_clean_tables("svi")
+        cds.set_datetime_index(svi_tables)
+        return svi_tables
+
+    def __read_and_index_micro_tables(self):
+        micro_tables = self.__read_clean_tables("micro")
+        cds.set_datetime_index(micro_tables)
+        return micro_tables
+
+    def __read_clean_tables(self, data_type: str):
+        assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
+        clean_tables_lst = []
+        for i in range(4):
+            table = pd.read_csv(f"clean_tables/{data_type}_{i}.csv", index_col=False)
+            clean_tables_lst.append(table)
+        return clean_tables_lst
 
     def __create_x_y_delayed(self, days_delay: int):
         """
@@ -129,14 +140,13 @@ class ML_prepare():
 
         self._x = x
         self._y = y
-        
 
         return self.x, self.y
 
     def __join_x_y(self):
         x = self._x.reset_index(level=1, drop=True)
         y = self._y.reset_index(level=1, drop=True)
-        return pd.concat([x,y], axis=1, keys=['micro','svi'])
+        return pd.concat([x, y], axis=1, keys=["micro", "svi"])
 
     def __create_x_y_bioreactor(self, bio_reactor_i):
         """
@@ -190,32 +200,17 @@ class ML_prepare():
                 )  # later
                 final_date -= timedelta(days=1)
 
+
 if __name__ == "__main__":
     delay = 4
     data = ML_prepare(delay)
     # data.plot_svi()
 
     delay_lst = [*range(0, 18, 3)]
-    sections = ['all','total_counts', 'filaments', 'various']
+    sections = ["all", "total_counts", "filaments", "various"]
 
-    # for delay in delay_lst:
-    #     data = ML_prepare(delay)
-    #     for section in sections:
-    #         table_xy = data.get_partial_table(x_section=section,y_labels=True)
-    #         x_train = table_xy.loc['1':'3','x']
-    #         x_test = table_xy.loc['4','x']
-    #         y_train = table_xy.loc['1':'3','x']
-    #         y_test = table_xy.loc['4','x']
-
-            # model
-
-
-
-
-
-    t = data.get_partial_table(x_section='all',y_labels=True)
-    t1 = data.get_partial_table(x_section='total_counts',y_labels=True)
-    t2 = data.get_partial_table(x_section='filaments',y_labels=False)
-    t3 = data.get_partial_table(x_section='various',y_labels=False)
-
+    t = data.get_partial_table(x_section="all", y_labels=True)
+    t1 = data.get_partial_table(x_section="total_counts", y_labels=True)
+    t2 = data.get_partial_table(x_section="filaments", y_labels=False)
+    t3 = data.get_partial_table(x_section="various", y_labels=False)
 
