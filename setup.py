@@ -45,6 +45,8 @@ INSTALL_REQUIRES = [
     'scipy',
     'threadpoolctl',
     'seaborn',
+    'pytest',
+    'xlrd',
 
 ]
 
