@@ -3,23 +3,41 @@ from ml_prepare import ML_prepare
 import pytest
 
 def test_init_types():
-    # delay = 3
-    # func
-    # check is_instance
-    # check it all attributes types
-        # self._svi_lst : list len 4, type df
-        # self._micro_lst : list len 4 type df
-        # self._delay == delay
-        # self._x, self._y : type df
-        # self.delay_table : type df
-    pass
+    delay = 3
+    data = ML_prepare(delay)
+    
+    # check types and lengths
+    assert isinstance(data, ML_prepare)
+    assert data._delay == delay
+    assert isinstance(data._svi_lst, list)
+    assert isinstance(data._micro_lst, list)
+
+  
+def test_init_df_lists():  
+    delay = 8
+    data = ML_prepare(delay)
+    
+    assert len(data._svi_lst)==4
+    assert len(data._micro_lst)==4
+    for i in range(4):
+        assert isinstance(data._svi_lst[i], pd.DataFrame)
+        assert isinstance(data._micro_lst[i], pd.DataFrame)
+
+
+def test_init_df_xy():  
+    delay = 5
+    data = ML_prepare(delay)
+    assert isinstance(self._x, pd.DataFrame)
+    assert isinstance(self._y, pd.DataFrame)
+    assert isinstance(self.delay_table, pd.DataFrame)
 
 
 def test_indirect_read_and_index_svi_tables():
-    # create data
-    # verify that svi_list index is type datetime
-    # verify that micro_list index is type datetime
-    pass
+    delay = 2
+    data = ML_prepare(delay)
+    for i in range(4):
+        assert isinstance(data._svi_lst[i].index, pd.DatetimeIndex)
+        assert isinstance(data._svi_lst[i].index, pd.DatetimeIndex)
 
 
 def test_get_partial_table_wrong_input():
