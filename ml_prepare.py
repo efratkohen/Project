@@ -11,7 +11,7 @@ class ML_prepare:
         self._micro_lst = self.__read_and_index_micro_tables()
         self._delay = delay
 
-        self._x, self._y = self.__create_x_y_delayed(days_delay=self._delay)
+        self._x, self._y = self.__create_x_y_delayed()
         self.delay_table = self.__join_x_y()  # with partial NaN rows un-touched.
 
     @property
@@ -34,7 +34,6 @@ class ML_prepare:
     def delay(self):
         return self._delay
 
-
     def __read_and_index_svi_tables(self):
         svi_tables = self.__read_clean_tables("svi")
         cds.set_datetime_index(svi_tables)
@@ -53,7 +52,6 @@ class ML_prepare:
             clean_tables_lst.append(table)
         return clean_tables_lst
 
-    
     def get_columns_of_sections(self):
         total_cols = [col for col in self._x.columns if "Total" in col]
         filament_cols = [col for col in self._x.columns if "Filaments_" in col]
@@ -63,7 +61,6 @@ class ML_prepare:
             if "Filaments_" not in col and "Total" not in col
         ]
         return total_cols, filament_cols, various_organisms_cols
-
 
     def get_partial_table(self, x_section: str, y_labels: bool = False):
         """
@@ -76,7 +73,11 @@ class ML_prepare:
             + "expected 'all' / 'total_counts' / 'filaments' / 'various'"
         )
 
-        total_cols, filament_cols, various_organisms_cols = self.get_columns_of_sections()
+        (
+            total_cols,
+            filament_cols,
+            various_organisms_cols,
+        ) = self.get_columns_of_sections()
 
         if x_section == "all":  # no total counts
             various_x = self._x.loc[:, various_organisms_cols].reset_index(
@@ -119,17 +120,13 @@ class ML_prepare:
         plt.xticks(rotation=70)
         plt.show()
 
-
-
-    def __create_x_y_delayed(self, days_delay: int):
+    def __create_x_y_delayed(self):
         """
         Returns:
         ------
         - micro_x - df of all 4 bio-reactors one after the other
         - svi_y
         """
-        self._delay = days_delay
-
         svi_y_lst = []
         micro_x_lst = []
         for bio_reactor_i in range(4):  # loop over bio reactors
@@ -153,7 +150,6 @@ class ML_prepare:
 
         return self.x, self.y
 
-
     def __create_x_y_bioreactor(self, bio_reactor_i):
         """
         Returns for this bio reactor the micro_x and svi_y with the correct delay.
@@ -163,7 +159,6 @@ class ML_prepare:
         matching_dates = []
         for date in self._micro_lst[bio_reactor_i].index:
             closest_date = self._find_closest_date(bio_reactor_i, date)
-            # print(f'date0 = {date}, closest date = {closest_date}') # later
             if not closest_date:  # if this is already out of bounds
                 # remove all rows from this point on from micro_x:
                 micro_x.drop(micro_x.loc[date:].index, inplace=True)
@@ -179,7 +174,6 @@ class ML_prepare:
         ), f"x and y for bio reactor {bio_reactor_i} not same length"
         return micro_x, svi_y
 
-
     def _find_closest_date(self, bio_reactor_i: int, date0):
         """
         Gets bio_reactor and date, 
@@ -194,7 +188,6 @@ class ML_prepare:
         # if out of bounds
         last_date = self._svi_lst[bio_reactor_i].index[-1]
         if final_date > last_date:
-            # print("out of bounds")  # later
             return False
 
         # else:
@@ -202,11 +195,7 @@ class ML_prepare:
             if final_date in self._svi_lst[bio_reactor_i].index:
                 return final_date
             else:  # go one date back
-                print(
-                    f"date {final_date} is not found in svi bio reactor {bio_reactor_i}"
-                )  # later
                 final_date -= timedelta(days=1)
-
 
     def __join_x_y(self):
         x = self._x.reset_index(level=1, drop=True)
@@ -217,7 +206,7 @@ class ML_prepare:
 if __name__ == "__main__":
     delay = 4
     data = ML_prepare(delay)
-    # data.plot_svi()
+    data.plot_svi()
 
     delay_lst = [*range(0, 18, 3)]
     sections = ["all", "total_counts", "filaments", "various"]
