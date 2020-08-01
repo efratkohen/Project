@@ -82,7 +82,7 @@ def remove_negatives(micro_df: pd.DataFrame):
     """
 
     numeric = micro_df._get_numeric_data()
-    numeric[numeric < 0] == np.nan
+    numeric.where(numeric>=0, np.nan, inplace=True)
 
 
 def filaments_zero_to_nan(micro_df: pd.DataFrame):
