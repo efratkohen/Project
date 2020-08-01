@@ -35,6 +35,7 @@ def test_loop_over_sections_and_y():
     # res = loop_over_sections_and_y(data, regr_model)
     # assert res is namedtuple
     # assert res len 8
+    pass
 
 
 def test_regr_model_func():
@@ -46,6 +47,7 @@ def test_regr_model_func():
     # assert fitted_model is sklearn:
         # module = getattr(las, '__module__', None)
         # assert 'sklearn' in module
+    pass
 
 
 def test_create_list_of_tidy_df_by_day_types():
@@ -58,6 +60,7 @@ def test_create_list_of_tidy_df_by_day_types():
     # assert len==range
     # x = days_df_dict[i]
     # assert type(x) is df
+    pass
 
 
 def test_create_list_of_tidy_df_by_day_values():
@@ -71,6 +74,7 @@ def test_create_list_of_tidy_df_by_day_values():
     # assert all(x['model'].value_counts()==8)
     # assert all(x['sv_svi'].value_counts()==20)
     # assert all(x['section'].value_counts()==10)
+    pass
 
 
 def test_get_day3_filaments_svi_data():
@@ -80,6 +84,7 @@ def test_get_day3_filaments_svi_data():
     # assert filaments_x.shape[0]==filaments_svi.shape[0]
     # assert filaments_x.shape[1]==9 # num of filament columns
     # filaments_svi.name[1]=='SVI'
+    pass
 
 
 def test_display_weights_of_winning_model():
@@ -88,4 +93,4 @@ def test_display_weights_of_winning_model():
     # df_coefs = display_weights_of_winning_model(winning_model)
     # assert isinstance(df_coefs, pd.DataFrame)
     # assert df_coefs.shape==(9,2)
-    
+    pass
