@@ -15,9 +15,22 @@ from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+'''
+In this file, using the ML_prepare class, a number of ML regression models are tested on 
+various sections of the data, investigating different hyper parameters, and plotting to visualize the performance.
+'''
 
 def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     """
+    Creates PCA for every section (organism group) of the data:
+    "all", "filaments", "total_counts", "various".
+    Using helper function "pca_plot".
+    Plots by the "y", results, whether labeled or not.
+
+    Parameters
+    ----------
+    data: ML_prepare
+    labled: bool
     """
     section_lst = ["all", "filaments", "total_counts", "various"]
     fig, ax = plt.subplots(4, 2)
@@ -46,8 +59,19 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
     plt.show()
 
 
-def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
+def pca_plot(table_xy: pd.DataFrame, section: str, ax_i: plt.axes, color_col: str ="SVI"):
     """
+    Plots the PCA as desired. 
+
+    Parameters
+    ---------
+    table_xy: pd.DataFrame
+        table containing only one section of the data to plot in this axis.
+    section: str
+        section plotted
+    ax_i: plt.axes
+    color_col: str
+        name of col to color the dots by.
     """
     x_only = table_xy.loc[:, "x"]
 
@@ -68,6 +92,15 @@ def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
 
 
 def create_models_dict():
+    '''
+    Generates dict of sklearn models.
+    Keys - model objects.
+    Values - model string names.
+
+    return
+    --------
+    models_dict: dict
+    '''
     las = linear_model.Lasso(alpha=1)
     elast = ElasticNet(random_state=0)
     ridge = Ridge(alpha=1.0)
@@ -85,9 +118,23 @@ def create_models_dict():
 
 
 def get_scores_of_all_models(
-    models_dict: dict, delay_range=range(1, 13), print_flag: bool = True
+    models_dict: dict, delay_range: range =range(1, 13), print_flag: bool = True
 ):
     """
+    Generates a dictionary with scores for all models, 
+    all delay options, and all 8 "x" and "y" combinations.
+    Using helper functions.
+
+    Parameters
+    ---------
+    models_dict: dict
+    delay_range: range
+    print_flag: bool
+        Print or not all results
+    
+    return
+    ---------
+    scores_models_dict: dict
     """
     scores_models_dict = {}
     for model in models_dict:
@@ -100,6 +147,24 @@ def get_scores_of_all_models(
 def get_scores_of_model(
     regr_model, model_name: str, delay_range, print_flag: bool = True
 ):
+    '''
+    Generates for a given model, a dictionary with 
+    scores for all delay options, and all 8 "x" and "y" combinations.
+    Using helper functions.
+
+    Parameters
+    ---------
+    regr_model: sklearn model object
+    model_name: str
+    delay_range: range
+    print_flag: bool
+        Print or not all results
+    
+    return
+    ---------
+    scores_by_delay_dict: dict
+
+    '''
 
     scores_by_delay_dict = {}
     for delay in delay_range:
@@ -124,6 +189,29 @@ def get_scores_of_model(
 
 
 def loop_over_sections_and_y(data: ML_prepare, regr_model):
+    '''
+    Generates for a given model, for a given delayed data,
+    scores of all 8 combinations:
+            "all_sv",
+            "all_svi",
+            "filaments_sv",
+            "filaments_svi",
+            "total_counts_sv",
+            "total_counts_svi",
+            "various_sv",
+            "various_svi"
+    Saves results in namedtuple.
+
+    Parameters
+    ---------
+    data: ML_prepare
+        allready generated with chosen delay
+    regr_model: sklearn model object
+
+    return
+    ---------
+    tup_scores: namedtuple, 
+    '''
     scores_lst = []
     section_lst = ["all", "filaments", "total_counts", "various"]
     for i in range(len(section_lst)):
@@ -139,7 +227,23 @@ def loop_over_sections_and_y(data: ML_prepare, regr_model):
     return tup_scores
 
 
-def regr_model_func(X, y, reg_model):
+def regr_model_func(X: pd.DataFrame, y: pd.Series, reg_model):
+    '''
+    Fits regression model on train data, and return results on test data.
+    Uses random builtin train_test_split function. 
+    
+    Parameters
+    ---------
+    X: pd.DataFrame
+    y: pd.Series
+    reg_model: sklearn model object
+
+    return
+    --------
+    score: float.
+        R squared of the model on test data
+    reg_model: sklearn model, already fitted to data
+    '''
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
@@ -149,6 +253,17 @@ def regr_model_func(X, y, reg_model):
 
 
 def insert_scores_to_namedtuple(scores_lst: list):
+    '''
+    Insert results of a given model in agiven delay to namedtuple.
+
+    Parameters
+    ---------
+    scores_lst: list
+
+    return
+    --------
+    tup_scores: namedtuple, Tup_scores
+    '''
     Tup_scores = namedtuple(
         "Tup_scores",
         [
@@ -166,7 +281,18 @@ def insert_scores_to_namedtuple(scores_lst: list):
     return tup_scores
 
 
-def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
+def run_models_on_same_data_and_plot(models_dict: dict, X: pd.DataFrame, y: pd.Series, x_name: str):
+    '''
+    Runs all 5 models on same data "X" and "y".
+    Plots all models as regression plots.
+
+    Parameters
+    ---------
+    models_dict: dict
+    X: pd.DataFrame
+    y: pd.Series
+    x_name: str
+    '''
     fig1, ax1 = plt.subplots(1, 5, figsize=(18, 4), sharey=True)
     plt.xlim((65, 210))
     plt.ylim((65, 210))
@@ -187,7 +313,19 @@ def run_models_on_same_data_and_plot(models_dict, X, y, x_name: str):
     plt.show()
 
 
-def run_model_and_plot(regr_model, model_name: str, X, y, x_name: str, ax_i):
+def run_model_and_plot(regr_model, model_name: str, X: pd.DataFrame, y: pd.Series, x_name: str, ax_i: plt.axes):
+    '''
+    Runs given model on given X, y, and generates plot in given ax.
+
+    Parameters
+    ---------
+    regr_model: sklearn model
+    model_name: str
+    X: pd.DataFrame
+    y: pd.Series
+    x_name: str
+    ax_i: plt.axes
+    '''
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42,
     )
@@ -198,8 +336,17 @@ def run_model_and_plot(regr_model, model_name: str, X, y, x_name: str, ax_i):
     reg_plot(y_test, y_predicted, model_name, score, ax_i)
 
 
-def reg_plot(x_axis, y_axis, model_name, score, ax_i):
+def reg_plot(x_axis, y_axis, model_name: str, score: float, ax_i: plt.axes):
     """
+    Generates regplot using given vectors in given ax_i.
+
+    Parameters
+    ---------
+    x_axis: 1D array like
+    y_axis: 1D array like
+    model_name: str
+    score: float
+    ax_i: plt.axes
     """
     sns.set()
     sns.regplot(x_axis, y_axis, ax=ax_i)
@@ -220,9 +367,22 @@ def reg_plot(x_axis, y_axis, model_name, score, ax_i):
     ax_i.set_xlabel("")
 
 
-def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range):
+def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range: range):
     """
-    Each subplot is a delay. In each there is all the results of a given section for all 5 models.
+    From scores_models_dict generates a dict of tidy (long) df, each df represents a different delay time.
+    Every df contains 4 columns: "score", "section", "sv_svi", "model".
+    keys are the number of days delayed.
+
+    Parameters
+    ----------
+    scores_models_dict: dict
+        scores for all models, all delay options, 
+        and all 8 "x" and "y" combinations.
+    delay_range: range
+
+    return
+    -------
+    days_df_dict: dict
     """
     days_df_dict = {}
     categories = (
@@ -261,9 +421,18 @@ def create_list_of_tidy_df_by_day(scores_models_dict: dict, delay_range):
     return days_df_dict
 
 
-def days_swarmplot(days_df_dict):
+def days_swarmplot(days_df_dict: dict):
     '''
+    Using the tidy df of every day, plots swarm plot for every day,
+    divided by section and sv/svi.
     ** requires days 2-7 in days_df_dict
+
+    Parameters
+    ----------
+    days_df_dict: dict
+        dict of tidy (long) df, each df represents a different delay time.
+        Every df contains 4 columns: "score", "section", "sv_svi", "model".
+        keys are the number of days delayed.
     '''
     days_range = range(2, 8)
     fig2, ax2 = plt.subplots(2, 3, figsize=(12, 8), sharey=True)
@@ -284,7 +453,16 @@ def days_swarmplot(days_df_dict):
     plt.show()
 
 
-def swarmplot_of_day(df_day: pd.DataFrame, day_num: int, ax_i):
+def swarmplot_of_day(df_day: pd.DataFrame, day_num: int, ax_i: plt.axes):
+    '''
+    Generates swarmplot for given tidy df of day, in ax_i.
+
+    Parameters
+    ----------
+    df_day: pd.DataFrame
+    day_num: int
+    ax_i: plt.axes
+    '''
     sns.set()
     sns.swarmplot(
         x="section",
@@ -301,6 +479,17 @@ def swarmplot_of_day(df_day: pd.DataFrame, day_num: int, ax_i):
 
 
 def get_day3_filaments_svi_data():
+    '''
+    Generates the most promising data producing regression results:
+    filaments microscopic data, and svi results of 3 days later.
+
+    return
+    --------
+    filaments_x: pd.DataFrame
+        microscopic measurements of all filament organisms.
+    filaments_svi: pd.Series
+        matching svi results of 3 days later
+    '''
     data = ML_prepare(delay=3)
     filaments_table = data.get_partial_table(x_section="filaments", y_labels=False)
     filaments_x = filaments_table.loc[:, "x"]
@@ -309,6 +498,13 @@ def get_day3_filaments_svi_data():
 
 
 def run_models_on_filaments_svi_3days(models_dict: dict):
+    '''
+    Runs all 5 models on this data and plot using helper function.
+
+    Parameters
+    -----------
+    models_dict: dict
+    '''
     filaments_x, filaments_svi = get_day3_filaments_svi_data()
     run_models_on_same_data_and_plot(
         models_dict, filaments_x, filaments_svi, "filaments"
@@ -316,6 +512,18 @@ def run_models_on_filaments_svi_3days(models_dict: dict):
 
 
 def display_weights_of_winning_model(winning_model):
+    '''
+    Plots the coefficients of the winning model on the given filaments variables.
+    
+    Parameters
+    ---------
+    winning_model: skleran model object
+
+    return
+    ---------
+    df_weights: pd.DataFrame
+        containg two columns: 'organism', 'weight'.
+    '''
 
     fil_X, fil_svi = get_day3_filaments_svi_data()
     score, fitted_model = regr_model_func(fil_X, fil_svi, winning_model)
