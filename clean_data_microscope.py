@@ -4,15 +4,15 @@ import numpy as np
 
 def dates_to_datetime_objects(df_list: list):
     """
-    change date column for str type to datetime objects
+    Change 'date' column from string to datetime objects, in every df in the list.
 
     Parameters
     ----------
-    df_list: list
+    df_list: list of df with column 'date'
 
-    return
+    Return
     ----------
-    df_list: list
+    df_list: list of df
     """
     for df in df_list:
         df['date'] = pd.to_datetime(df['date'])
@@ -21,7 +21,8 @@ def dates_to_datetime_objects(df_list: list):
 
 def remove_nan_rows(micro_df: pd.DataFrame):
     """
-    Removes rows that contain only nan values (except date column)
+    Remove rows that contain only nan values (except date column).
+    Change df inplace.
     
     Parameters
     ----------
@@ -35,7 +36,8 @@ def remove_nan_rows(micro_df: pd.DataFrame):
 
 def fix_col_to_float(micro_df: pd.DataFrame, col_i: int):
     """ 
-    fix values with commas in column of 'col_i' index.
+    Fix string values with commas to float values, in column number 'col_i'.
+    Change df inplace.
     
     Parameters
     ----------
@@ -56,12 +58,12 @@ def fix_col_to_float(micro_df: pd.DataFrame, col_i: int):
 
 def fix_object_cols_to_float(micro_df: pd.DataFrame):
     """
-    Convert 'object' columns with numbers to floats
+    Convert 'object' columns with string numbers to dtype float
+    Change df inplace.
 
     Parameters
     ----------
     micro_df: pd.DataFrame
-
     """
     obj_cols_is = [] 
     for col_i in range(1, len(micro_df.dtypes)): # exclude 'date' column
@@ -75,6 +77,7 @@ def fix_object_cols_to_float(micro_df: pd.DataFrame):
 def remove_negatives(micro_df: pd.DataFrame):
     """
     Replaces negative values with NaN.
+    Change df inplace.
 
     Parameters
     ----------
@@ -87,13 +90,13 @@ def remove_negatives(micro_df: pd.DataFrame):
 
 def filaments_zero_to_nan(micro_df: pd.DataFrame):
     """
-    If a row has all its "filament" columns 0 - 
-    turns all the "filament" values to NaN.
+    If a row has all its "filament" columns 0 or NaN,
+    turns all the "filament" values, including the "Total count- Filaments" to NaN.
+    Change df inplace.
 
     Parameters
     ----------
     micro_df: pd.DataFrame
-
     """
     ## find col index of first filament:
     for i in range(len(micro_df.columns)):
@@ -109,8 +112,8 @@ def filaments_zero_to_nan(micro_df: pd.DataFrame):
 
 def assert_totals_correct(micro_df: pd.DataFrame):
     """
-    Asserts that the total count of every kind of every row is correct. 
-    Otherwise, through error massage.
+    Asserts that the total count of every organism group is correct in all rows. 
+    Otherwise, throughs error massage.
 
     Parameters
     ----------
@@ -136,16 +139,17 @@ def assert_totals_correct(micro_df: pd.DataFrame):
                 our_sum = np.sum(micro_df.loc[i, totals_dict[group]])
                 assert our_sum == written_sum, (f'wrong total of group "{group}" row {i},'+ 
                                                 f'sum written {written_sum}, our_sum {our_sum}')
-    
+
+
 def clean_micro_df(micro_df: pd.DataFrame):
     """
-    cleans values of microscopic dataframes with all the cleansing functions.
+    Cleans values of microscopic dataframes with all the cleansing functions
 
     Parameters
     ----------
     micro_df: pd.DataFrame
 
-    return 
+    Return
     ----------
     micro_df: pd.DataFrame
     """
@@ -156,16 +160,16 @@ def clean_micro_df(micro_df: pd.DataFrame):
     assert_totals_correct(micro_df)
     return micro_df
 
+
 def clean_micro_df_list(micro_df_list: list):
     """
-    loop over the 4 dataframes in the dataframe list
+    Loop over the 4 dataframes in the dataframe list
     and use the clean_micro_df to clean values.
+    Changes all df in list inplace.
 
     Parameters
     ----------
     micro_df_list: list
-
     """
-
     for i in range(4):
         micro_df_list[i] = clean_micro_df(micro_df_list[i])
