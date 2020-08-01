@@ -162,7 +162,7 @@ class ML_prepare:
         micro_x = self._micro_lst[bio_reactor_i].copy()
         matching_dates = []
         for date in self._micro_lst[bio_reactor_i].index:
-            closest_date = self.__find_closest_date(bio_reactor_i, date)
+            closest_date = self._find_closest_date(bio_reactor_i, date)
             # print(f'date0 = {date}, closest date = {closest_date}') # later
             if not closest_date:  # if this is already out of bounds
                 # remove all rows from this point on from micro_x:
@@ -180,7 +180,7 @@ class ML_prepare:
         return micro_x, svi_y
 
 
-    def __find_closest_date(self, bio_reactor_i: int, date0):
+    def _find_closest_date(self, bio_reactor_i: int, date0):
         """
         Gets bio_reactor and date, 
         Finds in svi[bio_reactor_i] the closest row with date = date0 + delay
