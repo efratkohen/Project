@@ -1,6 +1,5 @@
 from ml_prepare import ML_prepare
 from collections import namedtuple
-from sklearn.decomposition import PCA
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,6 +7,7 @@ import numpy as np
 import seaborn as sns
 import scipy.stats
 
+from sklearn.decomposition import PCA
 from sklearn import linear_model
 from sklearn.linear_model import ElasticNet, Ridge
 from sklearn.model_selection import train_test_split
@@ -15,9 +15,10 @@ from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+
 def create_section_and_PCA(data: ML_prepare, labled: bool = False):
-    '''
-    '''
+    """
+    """
     section_lst = ["all", "filaments", "total_counts", "various"]
     fig, ax = plt.subplots(4, 2)
     for i in range(len(section_lst)):
@@ -46,8 +47,8 @@ def create_section_and_PCA(data: ML_prepare, labled: bool = False):
 
 
 def pca_plot(table_xy: pd.DataFrame, section: str, ax_i, color_col="SVI"):
-    '''
-    '''
+    """
+    """
     x_only = table_xy.loc[:, "x"]
 
     pca_model = make_pipeline(StandardScaler(), PCA(n_components=2))
@@ -349,4 +350,5 @@ if __name__ == "__main__":
     df_coefs = display_weights_of_winning_model(winning_model)
     df_coefs.to_csv("model_coefs.csv", index=False)
 
-    print('finished analyzing')
+    print("finished analyzing")
+
