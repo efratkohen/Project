@@ -1,4 +1,5 @@
 from ml_prepare import ML_prepare
+from datetime import timedelta
 
 import pytest
 import pandas as pd 
@@ -41,6 +42,15 @@ def test_indirect_read_and_index_svi_tables():
         assert isinstance(data._svi_lst[i].index, pd.DatetimeIndex)
 
 
+def test_get_columns_of_sections():
+    delay = 2
+    data = ML_prepare(delay)
+    res = data.get_columns_of_sections()
+    assert isinstance(res, tuple)
+    for i in rnage(3):
+        assert isinstance(res[i], list)
+
+
 def test_get_partial_table_wrong_input():
     delay = 10
     data = ML_prepare(delay)
@@ -81,18 +91,24 @@ def test_get_partial_table_y_labels():
     assert t2['y'].columns.to_list() == ['Settling_velocity', 'SVI']
 
 
-
 def test_indirect_create_x_y_delayed_length():
-    # get data
-    # assert len(self._x) == len(self._y)
-    pass
+    delay = 8
+    data = ML_prepare(delay)
+
+    assert data._x.shape[0] == data._y.shape[0]
 
 
 def test_indirect_create_x_y_bioreactor():
-    # get data with delay = 20?
-    # assert that for specific bio-reactor, the first date is indeed 20 days after
-    # assert that for specific bio-reactor, the length is indeed shortened for latest date in range
-    pass
+    delay = 10
+    data = ML_prepare(delay)
+
+    delay_time = timedelta(days=data.delay)
+
+    # assert that date difference is correct
+    data._y.loc['3',:].index[0] - data._x.loc['3',:].index[0] == delay_time
+
+    # assert that out_of_range dates were removed from x as well
+    assert data._micro_lst[3] = data._x.loc['4',:].shape[0] + 1
  
 
 def test_indirect_find_closest_date_missing_date():
@@ -113,13 +129,3 @@ def test_indirect_join_x_y():
     # self.delay_table.loc[:,'micro']==self._x
     # self.delay_table.loc[:,'svi']==self._y
     pass
-
-
-# class ml_prepare, test creating delayed x y    
-    # dif = timedelta(days = delay)
-    # for i in range(1,5):
-    #     xi = x.loc[f'{i}']
-    #     yi = y.loc[f'{i}']
-    #     assert xi.shape[0]==yi.shape[0]
-    #     for row_i in range(len(xi.index)):
-    #         assert yi.index[row_i] == xi.index[row_i] + dif

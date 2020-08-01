@@ -53,6 +53,17 @@ class ML_prepare:
             clean_tables_lst.append(table)
         return clean_tables_lst
 
+    
+    def get_columns_of_sections(self):
+        total_cols = [col for col in self._x.columns if "Total" in col]
+        filament_cols = [col for col in self._x.columns if "Filaments_" in col]
+        various_organisms_cols = [
+            col
+            for col in self._x.columns
+            if "Filaments_" not in col and "Total" not in col
+        ]
+        return total_cols, filament_cols, various_organisms_cols
+
 
     def get_partial_table(self, x_section: str, y_labels: bool = False):
         """
@@ -65,13 +76,7 @@ class ML_prepare:
             + "expected 'all' / 'total_counts' / 'filaments' / 'various'"
         )
 
-        total_cols = [col for col in self._x.columns if "Total" in col]
-        filament_cols = [col for col in self._x.columns if "Filaments_" in col]
-        various_organisms_cols = [
-            col
-            for col in self._x.columns
-            if "Filaments_" not in col and "Total" not in col
-        ]
+        total_cols, filament_cols, various_organisms_cols = self.get_columns_of_sections()
 
         if x_section == "all":  # no total counts
             various_x = self._x.loc[:, various_organisms_cols].reset_index(
