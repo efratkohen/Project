@@ -61,7 +61,7 @@ def set_datetime_index(df_list: list):
     """
     for i in range(4):
         df_list[i].set_index("date", inplace=True)
-        df_list[i].index = pd.to_datetime(df_list[i].index)
+        df_list[i].index = pd.to_datetime(df_list[i].index, dayfirst=True)
 
 
 def interpolate_svi_dfs(svi_df_list: list):

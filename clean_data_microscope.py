@@ -15,7 +15,7 @@ def dates_to_datetime_objects(df_list: list):
     df_list: list of df
     """
     for df in df_list:
-        df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(df['date'], dayfirst=True).dt.normalize()
     return df_list
 
 
