@@ -183,7 +183,10 @@ def save_dfs_to_csv(df_list: list, data_name: str):
     for i in range(4):
         fname = pathlib.Path("clean_tables/" + f"{data_name}_{i}.csv")
         if not pathlib.Path(fname).is_file():  # only if it does not exist yet
-            df_list[i].to_csv(fname, index=False)
+            if data_name=="micro":
+                df_list[i].to_csv(fname, index=False)
+            else:
+                df_list[i].to_csv(fname)
 
 
 if __name__ == "__main__":
@@ -192,6 +195,7 @@ if __name__ == "__main__":
     micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
     cdm.clean_micro_df_list(micro_df_list)
 
+    # save to csv
     save_dfs_to_csv(micro_df_list, "micro")
 
     ##### process SVI data ######
