@@ -47,6 +47,7 @@ def create_tidy_df_for_all_microorganisms(micro_df: pd.DataFrame, organisms_ist:
             micro_org_df = micro_org_df.replace(f"{organisms_ist[i]}{j}", f"Reactor {j}")
         micro_org_df = micro_org_df.sort_values(by=['Reactor'])
         micro_org_df['Month'] = pd.DatetimeIndex(micro_org_df['Time']).month
+        micro_org_df['Year'] = pd.DatetimeIndex(micro_org_df['Time']).year
         micro_org_df['Season'] = micro_org_df.Month.apply(lambda x: 'spring' if x >= 3 and x<=5 else(
                                                    'summer' if x >= 6 and x<=8 else( 
                                                    'fall' if x >= 9 and x<=11 else('winter'))))
@@ -65,6 +66,35 @@ def plot_graph_of_microorganisms_by_time(micro_df_list: list, organisms_ist: lis
         g = sns.scatterplot(data=micro_df_list[i], x="Time", y=organisms_ist[i], hue="Reactor", ax=ax)
         plt.xlim(micro_df_list[i]['Time'].min(), micro_df_list[i]['Time'].max())
         plt.savefig(f"figures/microscopic_organisms/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.close()
+
+def plot_graph_of_microorganisms_by_month(micro_df_list: list, organisms_ist: list):
+    """plot scatter graph of all microorganisms by month
+    save the images in "figures\microorganisms_month" file
+    """
+
+    for i in range (0, 27):
+        plt.rcParams.update({'figure.max_open_warning': 0})
+        fig, ax = plt.subplots()
+        fig.set_size_inches(18.5, 10.5)
+        g = sns.scatterplot(data=micro_df_list[i], x="Month", y=organisms_ist[i], ax=ax)
+        plt.xticks(np.arange(0, 13, step=1))
+        plt.savefig(f"figures\microorganisms_month/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.close()
+
+def plot_graph_of_microorganisms_by_month_year(micro_df_list: list, organisms_ist: list):
+    """plot heatmap graph of all microorganisms by month and year
+    save the images in "figures\microorganisms_month_year" file
+    """
+
+    for i in range (0, 27):
+        plt.rcParams.update({'figure.max_open_warning': 0})
+        table = pd.pivot_table(micro_df_list[i], values=organisms_ist[i], index=['Month'], columns=['Year'])
+        ax = sns.heatmap(table, cmap="rocket_r")
+        plt.title(organisms_ist[i])
+        plt.savefig(f"figures\microorganisms_month_year/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.close()
+    
 
 if __name__ == "__main__":
     """ Creatr and save image graph for microorganisms in each reactor by time 
@@ -105,4 +135,6 @@ if __name__ == "__main__":
     data_microscopic = dates_to_datetime_objects(data_microscopic)
     data_microscopic = clean_micro_df(data_microscopic)
     micro_df_list = create_tidy_df_for_all_microorganisms(data_microscopic, organisms_ist)
-    plot_graph_of_microorganisms_by_time(micro_df_list, organisms_ist)
+    #plot_graph_of_microorganisms_by_time(micro_df_list, organisms_ist)
+    #plot_graph_of_microorganisms_by_month(micro_df_list, organisms_ist)
+    plot_graph_of_microorganisms_by_month_year(micro_df_list, organisms_ist)
