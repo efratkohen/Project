@@ -47,6 +47,9 @@ INSTALL_REQUIRES = [
     'seaborn',
     'pytest',
     'xlrd',
+    'keras',
+    'tensorflow',
+
 
 ]
 
