@@ -109,7 +109,7 @@ def split_microscopic_to_reactor(data_micro: pd.DataFrame):
     return micro_df_list
 
 
-def micro_data_read_and_split(micro_fname: str = "microscopic_data.csv"):
+def micro_data_read_and_split(micro_fname: str):
     """
     Reads csv file and splits the data to 4 reactors df list.
     Combine the functions check_file, read_data and split_microscopic_to_reactor to one function.
@@ -128,7 +128,7 @@ def micro_data_read_and_split(micro_fname: str = "microscopic_data.csv"):
     return micro_df_list
 
 
-def svi_data_read_calculate_and_split(svi_fname: str = "SVI.csv"):
+def svi_data_read_calculate_and_split(svi_fname: str):
     """
     Reads CSV file, computes values SVI, and splits to 4 bio reactors.
 
@@ -191,7 +191,7 @@ def save_dfs_to_csv(df_list: list, data_name: str):
 
 if __name__ == "__main__":
     ##### process micro data ######
-    micro_df_list = micro_data_read_and_split()
+    micro_df_list = micro_data_read_and_split("microscopic_data.csv")
     micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
     cdm.clean_micro_df_list(micro_df_list)
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     save_dfs_to_csv(micro_df_list, "micro")
 
     ##### process SVI data ######
-    svi_df_list = svi_data_read_calculate_and_split()
+    svi_df_list = svi_data_read_calculate_and_split("SVI.csv")
     cds.set_datetime_index(svi_df_list)
     cds.interpolate_svi_dfs(svi_df_list)
     cds.svi_label(svi_df_list)
