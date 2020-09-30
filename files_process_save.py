@@ -181,7 +181,7 @@ def save_dfs_to_csv(df_list: list, data_name: str):
     """
     assert data_name in {"svi", "micro"}, 'data_name invalid, expected "svi"/"micro"'
     for i in range(4):
-        fname = pathlib.Path("clean_tables/" + f"{data_name}_{i}.csv")
+        fname = pathlib.Path("clean_tables/" + f"{data_name}_{i+1}.csv")
         if not pathlib.Path(fname).is_file():  # only if it does not exist yet
             if data_name=="micro":
                 df_list[i].to_csv(fname, index=False)
@@ -191,19 +191,20 @@ def save_dfs_to_csv(df_list: list, data_name: str):
 
 if __name__ == "__main__":
     ##### process micro data ######
-    micro_df_list = micro_data_read_and_split("microscopic_data.csv")
-    micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
-    cdm.clean_micro_df_list(micro_df_list)
+    ##### for micro data process save use File_process_save_microscopic.ipynb ######
+    # micro_df_list = micro_data_read_and_split("microscopic_data.csv")
+    # micro_df_list = cdm.dates_to_datetime_objects(micro_df_list)
+    # cdm.clean_micro_df_list(micro_df_list)
 
-    # save to csv
-    save_dfs_to_csv(micro_df_list, "micro")
+    # # save to csv
+    # save_dfs_to_csv(micro_df_list, "micro")
 
-    ##### process SVI data ######
-    svi_df_list = svi_data_read_calculate_and_split("SVI.csv")
+    #### process SVI data ######
+    svi_df_list = svi_data_read_calculate_and_split("SVI_total.csv")
     cds.set_datetime_index(svi_df_list)
     cds.interpolate_svi_dfs(svi_df_list)
     cds.svi_label(svi_df_list)
 
     # save to csv
     save_dfs_to_csv(svi_df_list, "svi")
-
+ 

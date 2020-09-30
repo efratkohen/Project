@@ -88,8 +88,8 @@ def svi_label(svi_df_list: list):
     svi_df_list: list
     """
     # define borders between bad / reasonable / good results
-    SVI_label = [160.0, 120.0]
-    SV_label = [3.0, 3.5]
+    SVI_label = [190.0, 140.0]
+    SV_label = [2.5, 3.0]
     for svi_df in svi_df_list:
         svi_df = label_data(svi_df, SVI_label, SV_label)
 
