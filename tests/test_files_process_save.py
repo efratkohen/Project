@@ -98,3 +98,17 @@ def test_split_svi_to_reactor_len():
     data_svi_computed = cds.svi_calculate(data)
     data_svi = split_svi_to_reactor(data_svi_computed)
     assert len(data_svi) == length
+
+
+def test_clean_table_SVI_dates():
+    days_list= []
+    length_list = []
+    for i in range(4):
+        svi_path = check_file(f"clean_tables/svi_{i+1}.csv")
+        data = pd.read_csv(svi_path)
+        data["date"] = pd.to_datetime(data["date"], dayfirst=True)
+        df = data["date"]
+        length_list.append(len(df))
+        days = df.diff().sum().days
+        days_list.append(days+1)
+    assert days_list == length_list
