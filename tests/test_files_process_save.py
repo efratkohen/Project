@@ -101,6 +101,7 @@ def test_split_svi_to_reactor_len():
 
 
 def test_clean_table_SVI_dates():
+    "Check that every row is a day and there are no gaps"
     days_list= []
     length_list = []
     for i in range(4):
