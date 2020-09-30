@@ -77,7 +77,7 @@ def interpolate_svi_dfs(svi_df_list: list):
         svi_df_list[i].interpolate(inplace=True, method="time")
 
 
-def svi_label(svi_df_list: list):
+def svi_label(svi_df_list: list, SVI_label = [190.0, 140.0], SV_label = [2.5, 3.0] ):
     """
     Adds label columns in each dataframe in svi dataframe list,
     Using "label_data" function.
@@ -88,8 +88,6 @@ def svi_label(svi_df_list: list):
     svi_df_list: list
     """
     # define borders between bad / reasonable / good results
-    SVI_label = [190.0, 140.0]
-    SV_label = [2.5, 3.0]
     for svi_df in svi_df_list:
         svi_df = label_data(svi_df, SVI_label, SV_label)
 
