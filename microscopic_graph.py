@@ -65,7 +65,7 @@ def plot_graph_of_microorganisms_by_time(micro_df_list: list, organisms_ist: lis
         fig.set_size_inches(18.5, 10.5)
         g = sns.scatterplot(data=micro_df_list[i], x="Time", y=organisms_ist[i], hue="Reactor", ax=ax)
         plt.xlim(micro_df_list[i]['Time'].min(), micro_df_list[i]['Time'].max())
-        plt.savefig(f"figures/microscopic_organisms/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.savefig(f"figures/microscopic_organisms/{organisms_ist[i]}.png", dpi=100, bbox_inches="tight")
         plt.close()
 
 def plot_graph_of_microorganisms_by_month(micro_df_list: list, organisms_ist: list):
@@ -79,7 +79,7 @@ def plot_graph_of_microorganisms_by_month(micro_df_list: list, organisms_ist: li
         fig.set_size_inches(18.5, 10.5)
         g = sns.scatterplot(data=micro_df_list[i], x="Month", y=organisms_ist[i], ax=ax)
         plt.xticks(np.arange(0, 13, step=1))
-        plt.savefig(f"figures\microorganisms_month/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.savefig(f"figures/microorganisms_month/{organisms_ist[i]}.png", dpi=100, bbox_inches="tight")
         plt.close()
 
 def plot_graph_of_microorganisms_by_month_year(micro_df_list: list, organisms_ist: list):
@@ -92,12 +92,13 @@ def plot_graph_of_microorganisms_by_month_year(micro_df_list: list, organisms_is
         table = pd.pivot_table(micro_df_list[i], values=organisms_ist[i], index=['Month'], columns=['Year'])
         ax = sns.heatmap(table, cmap="rocket_r")
         plt.title(organisms_ist[i])
-        plt.savefig(f"figures\microorganisms_month_year/{organisms_ist[i]}.png", bbox_inches="tight")
+        plt.xticks(rotation=90)
+        plt.savefig(f"figures/microorganisms_month_year/{organisms_ist[i]}.png", dpi=100, bbox_inches="tight")
         plt.close()
     
 
 if __name__ == "__main__":
-    """ Creatr and save image graph for microorganisms in each reactor by time 
+    """ Creatr and save image graph for microorganisms in each reactor by time, month and year 
     For using this code the CSV file of microorganisms 
     need to be with columns name like in organisms_ist + a number of the reactor in the end
     """
@@ -135,6 +136,7 @@ if __name__ == "__main__":
     data_microscopic = dates_to_datetime_objects(data_microscopic)
     data_microscopic = clean_micro_df(data_microscopic)
     micro_df_list = create_tidy_df_for_all_microorganisms(data_microscopic, organisms_ist)
-    #plot_graph_of_microorganisms_by_time(micro_df_list, organisms_ist)
-    #plot_graph_of_microorganisms_by_month(micro_df_list, organisms_ist)
+    plot_graph_of_microorganisms_by_time(micro_df_list, organisms_ist)
+    plot_graph_of_microorganisms_by_month(micro_df_list, organisms_ist)
     plot_graph_of_microorganisms_by_month_year(micro_df_list, organisms_ist)
+    
