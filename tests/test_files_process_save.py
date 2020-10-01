@@ -113,3 +113,15 @@ def test_clean_table_SVI_dates():
         days = df.diff().sum().days
         days_list.append(days+1)
     assert days_list == length_list
+
+def test_clean_table_temperature_dates():
+    "Check that every row is a day and there are no gaps"
+    days_list= []
+    length_list = []
+    temp_path = check_file(f"clean_tables/temperatur.csv")
+    data = pd.read_csv(temp_path)
+    data["Date"] = pd.to_datetime(data["Date"], dayfirst=True)
+    df = data["Date"]
+    length = len(df)
+    days = df.diff().sum().days
+    assert days +1 == length
