@@ -101,7 +101,7 @@ class ML_prepare:
         assert data_type in {"micro", "svi"}, '"data_type" must be "micro" / "svi"'
         clean_tables_lst = []
         for i in range(4):
-            table = pd.read_csv(f"clean_tables/{data_type}_{i}.csv", index_col=False)
+            table = pd.read_csv(f"clean_tables/{data_type}_{i+1}.csv", index_col=False)
             clean_tables_lst.append(table)
         return clean_tables_lst
 
