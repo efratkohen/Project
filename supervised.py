@@ -350,7 +350,6 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 def confusion_matrix_SVC(label: str, section: str, delay: int):
-    class_names = ['bad', 'reasonable', 'good']
     data = ML_prepare(delay)
     table_xy = data.get_partial_table(x_section=section,y_labels=True)
     X = table_xy.loc[:,'x']
@@ -368,7 +367,7 @@ def confusion_matrix_SVC(label: str, section: str, delay: int):
     np.set_printoptions(precision=2)
     plot_confusion_matrix(cnf_matrix, classes=le.classes_, normalize=False,
                         title='Confusion matrix, without normalization')
-    plt.show()
+    plt.savefig(f"figures/SVC/LinearSVC_Confusion matrix, without normalization.png", bbox_inches="tight")
 
 
 if __name__ == "__main__":
@@ -381,14 +380,14 @@ if __name__ == "__main__":
     #k = choose_k_value('filaments', 'SVI_label', 6)
     k = 7 # erase 
     # Run Knn model
-    # score_lst_Knn = []
-    # score_lst_Knn = create_score_list_Knn(labels, sections, delay_lst, k)
-    # score_df_Knn = list_to_df(score_lst_Knn, delay_lst, sections, labels, score_lst_name)
-    # save_plot_Knn(score_df_Knn, delay_lst, sections, labels, score_lst_name)
+    score_lst_Knn = []
+    score_lst_Knn = create_score_list_Knn(labels, sections, delay_lst, k)
+    score_df_Knn = list_to_df(score_lst_Knn, delay_lst, sections, labels, score_lst_name)
+    save_plot_Knn(score_df_Knn, delay_lst, sections, labels, score_lst_name)
     
     # Run SVC model
-    # score_lst_SVC = []
-    # score_lst_SVC = create_score_list_SVC(labels, sections, delay_lst) 
-    # score_df_SVC = list_to_df(score_lst_SVC, delay_lst, sections, labels, score_lst_name)
-    # save_plot_SVC(score_df_SVC, delay_lst, sections, labels, score_lst_name)
+    score_lst_SVC = []
+    score_lst_SVC = create_score_list_SVC(labels, sections, delay_lst) 
+    score_df_SVC = list_to_df(score_lst_SVC, delay_lst, sections, labels, score_lst_name)
+    save_plot_SVC(score_df_SVC, delay_lst, sections, labels, score_lst_name)
     confusion_matrix_SVC('SVI_label', 'filaments', 7)
