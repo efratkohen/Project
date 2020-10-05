@@ -1,3 +1,4 @@
+import itertools
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,6 +10,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix
+from sklearn import preprocessing
 
 
 def check_K_values(k_max: int, X_train, y_train, X_test, y_test) -> pd.DataFrame:
@@ -258,7 +261,7 @@ def save_plot_Knn(score_df: pd.DataFrame, delay_lst: list, sections: list, label
     for label in labels:
         fig, ax = plt.subplots(1 , len(sections), figsize=(14,4), sharey=True)
         fig.suptitle(f'scores of KNeighbors prediction for {label}', fontsize=20)
-        fig.text(0.5, 0.0, "Delay (day)", ha="center", va="center", fontsize=14)
+        fig.text(0.5, 0.0, "Delay (days)", ha="center", va="center", fontsize=14)
         fig.text(0.0, 0.5, "Score", ha="center", va="center", fontsize=14, rotation=90)
         plt.ylim(0, 1)
         section_count = 0
@@ -297,7 +300,7 @@ def save_plot_SVC(score_df: pd.DataFrame, delay_lst: list, sections: list, label
     for label in labels:
         fig, ax = plt.subplots(1 , len(sections), figsize=(14,4), sharey=True)
         fig.suptitle(f'scores of LinearSVC prediction for {label}', fontsize=20)
-        fig.text(0.5, 0.0, "Delay", ha="center", va="center", fontsize=14)
+        fig.text(0.5, 0.0, "Delay (days)", ha="center", va="center", fontsize=14)
         fig.text(0.0, 0.5, "Score", ha="center", va="center", fontsize=14, rotation=90)
         plt.ylim(0, 1)
         section_count = 0
@@ -313,6 +316,61 @@ def save_plot_SVC(score_df: pd.DataFrame, delay_lst: list, sections: list, label
         plt.tight_layout()
         fig.savefig(f"figures/SVC/LinearSVC_{label}.png", bbox_inches="tight")
 
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix. For classification problems
+    Normalization can be applied by setting `normalize=True`.
+    """
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+def confusion_matrix_SVC(label: str, section: str, delay: int):
+    class_names = ['bad', 'reasonable', 'good']
+    data = ML_prepare(delay)
+    table_xy = data.get_partial_table(x_section=section,y_labels=True)
+    X = table_xy.loc[:,'x']
+    y = table_xy['y', label]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+    clf = make_pipeline(StandardScaler(),
+            LinearSVC(random_state=0, tol=1e-5, max_iter=100000))
+    y_pred = clf.fit(X_train, y_train).predict(X_test)
+    le = preprocessing.LabelEncoder()
+    le.fit(list(y_pred))
+    y_pred = le.transform(y_pred)
+    y_test = le.transform(np.array(y_test))
+    cnf_matrix = confusion_matrix(y_test, y_pred)
+    plt.figure()
+    np.set_printoptions(precision=2)
+    plot_confusion_matrix(cnf_matrix, classes=le.classes_, normalize=False,
+                        title='Confusion matrix, without normalization')
+    plt.show()
+
+
 if __name__ == "__main__":
     delay_lst = [*range(0, 14, 1)]
     #sections = ['all', 'total_counts', 'filaments', 'various']
@@ -322,13 +380,15 @@ if __name__ == "__main__":
     model = ["Knn", "SVC"]
     #k = choose_k_value('filaments', 'SVI_label', 6)
     k = 7 # erase 
-    score_lst = []
-    score_lst_Knn = create_score_list_Knn(labels, sections, delay_lst, k)
-    score_lst_SVC = create_score_list_SVC(labels, sections, delay_lst)
-
-    score_df_Knn = list_to_df(score_lst_Knn, delay_lst, sections, labels, score_lst_name)
-    score_df_SVC = list_to_df(score_lst_SVC, delay_lst, sections, labels, score_lst_name)
-
-    save_plot_Knn(score_df_Knn, delay_lst, sections, labels, score_lst_name)
-    save_plot_SVC(score_df_SVC, delay_lst, sections, labels, score_lst_name)
+    # Run Knn model
+    # score_lst_Knn = []
+    # score_lst_Knn = create_score_list_Knn(labels, sections, delay_lst, k)
+    # score_df_Knn = list_to_df(score_lst_Knn, delay_lst, sections, labels, score_lst_name)
+    # save_plot_Knn(score_df_Knn, delay_lst, sections, labels, score_lst_name)
     
+    # Run SVC model
+    # score_lst_SVC = []
+    # score_lst_SVC = create_score_list_SVC(labels, sections, delay_lst) 
+    # score_df_SVC = list_to_df(score_lst_SVC, delay_lst, sections, labels, score_lst_name)
+    # save_plot_SVC(score_df_SVC, delay_lst, sections, labels, score_lst_name)
+    confusion_matrix_SVC('SVI_label', 'filaments', 7)
