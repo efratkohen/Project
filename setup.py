@@ -45,10 +45,10 @@ INSTALL_REQUIRES = [
     'scipy',
     'threadpoolctl',
     'seaborn',
-    'pytest',
     'xlrd',
     'keras',
     'tensorflow',
+    'mkl-service',
 
 
 ]
