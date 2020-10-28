@@ -15,9 +15,16 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Activation, Dense, LSTM
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import categorical_crossentropy
+from sklearn import preprocessing
+from sklearn.metrics import confusion_matrix
 
 def series_to_supervised(sequences, n_steps_in=1, n_steps_out=1, jump=1, binary=False):
+    """create array for x and y 
+    n_steps_in - how many rows to take before this row for evaluation- window size
+    n_steps_out - prediction ahead 
+    """
     X, Y = list(), list()
+    svi_limit = 180
 
     for i in range(0, len(sequences)):
         # find the end of this pattern
@@ -28,6 +35,10 @@ def series_to_supervised(sequences, n_steps_in=1, n_steps_out=1, jump=1, binary=
             break
         # gather input and output parts of the pattern
         seq_x, seq_y = sequences[i:end_ix, :], sequences[out_end_ix - 1:out_end_ix][:, 0]
+        
+        if binary:
+            seq_y = [float(seq_y < svi_limit)]
+           
         X.append(seq_x)
         Y.append(seq_y)
     return np.array(X), np.array(Y)
@@ -41,6 +52,36 @@ def normalize(X, Y):
     scalers.append(MinMaxScaler())
     Y = scalers[i + 1].fit_transform(Y)
     return X, Y, scalers
+
+def create_join_x_y_arr(reactor_list: list, n_steps_in=1, n_steps_out=1, jump=1, binary=False):
+    for i in range(len(reactor_list)):
+        if i == 0:
+            X, Y = series_to_supervised(reactor_list[i].values, n_steps_in, n_steps_out, jump, binary)
+        else:
+            X1, Y1 = series_to_supervised(reactor_list[i].values, n_steps_in, n_steps_out, jump, binary)
+            X = np.concatenate((X, X1), axis = 0)
+            Y = np.concatenate((Y, Y1), axis = 0)
+    return X, Y
+
+def evaluate(model, Xtest, Ytest, scalers, binary=False):
+    Yhat = model.predict(Xtest)
+    if not binary:
+        Yhat = scalers[-1].inverse_transform(Yhat)
+        Ytest = scalers[-1].inverse_transform(Ytest)
+    return Yhat, Ytest
+
+def results(y_real, y_predict, binary=True):
+    if binary:
+        cm = confusion_matrix(y_real, y_predict)
+        tn, fp, fn, tp = confusion_matrix(y_real, y_predict).ravel()
+        accuracy = (tn + tp) / (tn + fp + fn + tp)
+        TNR = (tn) / (tn + fp)
+        NPV = (tn) / (tn+fn)
+        f1 = 2*(TNR*NPV)/(TNR+NPV)
+        return accuracy, TNR, NPV, f1
+    else:
+        rmse = sqrt(mean_squared_error(y_real, y_predict))
+        return rmse
 
 # if __name__ == "__main__":
 #     svi_df = pd.read_csv("clean_tables/svi_1_tem.csv", index_col="date")
