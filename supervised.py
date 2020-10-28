@@ -385,7 +385,7 @@ if __name__ == "__main__":
     score_df_Knn = list_to_df(score_lst_Knn, delay_lst, sections, labels, score_lst_name)
     save_plot_Knn(score_df_Knn, delay_lst, sections, labels, score_lst_name)
     
-    # Run SVC model
+    # Run SVC model.
     score_lst_SVC = []
     score_lst_SVC = create_score_list_SVC(labels, sections, delay_lst) 
     score_df_SVC = list_to_df(score_lst_SVC, delay_lst, sections, labels, score_lst_name)
