@@ -25,7 +25,7 @@ def series_to_supervised(sequences, n_steps_in=1, n_steps_out=1, jump=1, binary=
     n_steps_out - prediction ahead 
     """
     X, Y = list(), list()
-    svi_limit = 180
+    svi_limit = 160
 
     for i in range(0, len(sequences)):
         # find the end of this pattern
@@ -48,10 +48,10 @@ def series_to_supervised(sequences, n_steps_in=1, n_steps_out=1, jump=1, binary=
     return np.array(X), np.array(Y)
 
 
-def normalize(X, Y):
+def normalize(X, Y, feature_range=(0, 1)):
     scalers = list()
     for i in tqdm(range(X.shape[1])):
-        scalers.append(MinMaxScaler())
+        scalers.append(MinMaxScaler(feature_range))
         X[:, i, :] = scalers[i].fit_transform(X[:, i, :])
 
     scalers.append(MinMaxScaler())
