@@ -25,7 +25,7 @@ def series_to_supervised(sequences, n_steps_in=1, n_steps_out=1, jump=1, binary=
     n_steps_out - prediction ahead 
     """
     X, Y = list(), list()
-    svi_limit = 200
+    svi_limit = 150
 
     for i in range(0, len(sequences)):
         # find the end of this pattern
